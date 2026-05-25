@@ -18,6 +18,7 @@
 
 @using (Html.BeginForm(Model.IsEdit ? "Edit" : "Create", "Service", FormMethod.Post))
 {
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.Id)
     @Html.HiddenFor(m => m.IsEdit)
     @Html.HiddenFor(m => m.ServiceCode)

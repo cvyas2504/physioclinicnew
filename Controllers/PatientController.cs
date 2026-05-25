@@ -39,6 +39,8 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(PatientViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -146,6 +148,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(PatientViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)

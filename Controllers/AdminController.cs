@@ -48,6 +48,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CreateUser(UserViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -231,6 +232,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ClinicProfile(ClinicProfileViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -274,6 +276,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult UploadLogo(IFormFile file, string type)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)

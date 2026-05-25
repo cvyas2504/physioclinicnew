@@ -26,6 +26,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Login(LoginViewModel model)
         {
             var clinic = _context.ClinicProfiles.FirstOrDefault();

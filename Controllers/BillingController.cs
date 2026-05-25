@@ -41,6 +41,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(BillViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -244,6 +245,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(BillViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -373,6 +375,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Cancel(BillOperationViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -432,6 +435,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Refund(BillOperationViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -496,6 +500,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Discount(BillOperationViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
@@ -708,6 +713,7 @@ namespace PhysioClinicPro.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CollectPayment(BillPaymentViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
