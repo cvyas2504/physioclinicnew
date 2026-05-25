@@ -228,7 +228,7 @@ namespace PhysioClinicPro.Models
         public string Status { get; set; } = "Active";
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int? ModifiedBy { get; set; }
 
