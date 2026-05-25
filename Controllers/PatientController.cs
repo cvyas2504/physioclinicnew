@@ -40,7 +40,6 @@ namespace PhysioClinicPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(PatientViewModel model)
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
