@@ -166,7 +166,7 @@
             </div>
 
             <div class="mt-4 text-end">
-                <button type="submit" class="btn btn-success btn-lg">
+                <button type="submit" id="btnSubmit" class="btn btn-success btn-lg">
                     <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update Patient" : "Register Patient")
                 </button>
                 <a href="@Url.Action("Index", "Patient")" class="btn btn-secondary btn-lg ms-2">

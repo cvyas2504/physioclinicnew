@@ -1,0 +1,137 @@
+@model PhysioClinicPro.Models.ViewModels.PatientViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "New Patient Registration";
+}
+
+<div class="page-header">
+    <h2><i class="fas fa-user-plus me-2"></i>New Patient Registration</h2>
+    <p>Register a new patient with auto-generated UHID</p>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Create" asp-controller="Patient" method="post">
+    @Html.AntiForgeryToken()
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>UHID will be auto-generated</strong> on saving. Format: [Prefix]-[Year]-[Sequence]
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Patient Name *</label>
+                    <input asp-for="PatientName" class="form-control" required />
+                    <span asp-validation-for="PatientName" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>Gender</label>
+                    <select asp-for="Gender" class="form-control">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>Age</label>
+                    <input asp-for="Age" class="form-control" type="number" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Date of Birth</label>
+                    <input asp-for="DateOfBirth" class="form-control" type="date" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Blood Group</label>
+                    <select asp-for="BloodGroup" class="form-control">
+                        <option value="">Select</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Mobile Number *</label>
+                    <input asp-for="MobileNumber" class="form-control" required />
+                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Email</label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Address</label>
+                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label>City</label>
+                    <input asp-for="City" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>State</label>
+                    <input asp-for="State" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>Pincode</label>
+                    <input asp-for="Pincode" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Emergency Contact Name</label>
+                    <input asp-for="EmergencyContactName" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Emergency Contact Number</label>
+                    <input asp-for="EmergencyContactNumber" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Medical History</label>
+                <textarea asp-for="MedicalHistory" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Allergies</label>
+                <textarea asp-for="Allergies" class="form-control" rows="2"></textarea>
+            </div>
+
+            <input type="hidden" asp-for="RegistrationDate" value="@DateTime.Now" />
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>Register Patient
+                </button>
+                <a href="@Url.Action("Index", "Patient")" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
