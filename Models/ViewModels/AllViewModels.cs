@@ -47,21 +47,21 @@ namespace PhysioClinicPro.Models.ViewModels
     public class PatientViewModel
     {
         public int Id { get; set; }
-        public string UHID { get; set; } = "";
+        public string? UHID { get; set; }
         public string? PhotoPath { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string PatientName { get; set; } = "";
+        public string? PatientName { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
         public int? Age { get; set; }
 
         [MaxLength(10)]
-        public string Gender { get; set; } = "Male";
+        public string? Gender { get; set; }
 
         [MaxLength(20)]
-        public string MobileNumber { get; set; } = "";
+        public string? MobileNumber { get; set; }
 
         [MaxLength(20)]
         public string? AlternateMobile { get; set; }
@@ -70,13 +70,13 @@ namespace PhysioClinicPro.Models.ViewModels
         public string? Email { get; set; }
 
         [MaxLength(500)]
-        public string Address { get; set; } = "";
+        public string? Address { get; set; }
 
         [MaxLength(100)]
-        public string City { get; set; } = "";
+        public string? City { get; set; }
 
         [MaxLength(100)]
-        public string State { get; set; } = "";
+        public string? State { get; set; }
 
         [MaxLength(10)]
         public string? Pincode { get; set; }
@@ -96,7 +96,7 @@ namespace PhysioClinicPro.Models.ViewModels
         public string? MedicalHistory { get; set; }
         public string? Allergies { get; set; }
 
-        public DateTime RegistrationDate { get; set; } = DateTime.Now;
+        public DateTime RegistrationDate { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsEdit { get; set; }
     }

@@ -33,7 +33,9 @@ namespace PhysioClinicPro.Controllers
 
             var model = new PatientViewModel
             {
-                RegistrationDate = DateTime.Now
+                RegistrationDate = DateTime.Now,
+                Gender = "Male",
+                IsActive = true
             };
             return View(model);
         }
@@ -286,9 +288,9 @@ namespace PhysioClinicPro.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(p => 
-                    p.UHID.Contains(search) || 
-                    p.PatientName.Contains(search) || 
-                    p.MobileNumber.Contains(search));
+                    (p.UHID != null && p.UHID.Contains(search)) || 
+                    (p.PatientName != null && p.PatientName.Contains(search)) || 
+                    (p.MobileNumber != null && p.MobileNumber.Contains(search)));
             }
 
             if (status != "all")
@@ -297,22 +299,23 @@ namespace PhysioClinicPro.Controllers
             }
 
             var patients = query
-                .OrderByDescending(p => p.RegistrationDate)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.UHID,
-                    p.PatientName,
-                    p.Gender,
-                    p.Age,
-                    p.MobileNumber,
-                    p.Email,
-                    RegistrationDate = p.RegistrationDate.ToString("dd-MMM-yyyy"),
-                    p.IsActive
-                })
+                .OrderByDescending(p => p.Id)
                 .ToList();
 
-            return Json(patients);
+            var result = patients.Select(p => new
+            {
+                p.Id,
+                UHID = p.UHID ?? "",
+                PatientName = p.PatientName ?? "",
+                Gender = p.Gender ?? "",
+                Age = p.Age ?? 0,
+                MobileNumber = p.MobileNumber ?? "",
+                Email = p.Email ?? "",
+                RegistrationDate = p.RegistrationDate.ToString("dd-MMM-yyyy"),
+                IsActive = p.IsActive
+            }).ToList();
+
+            return Json(result);
         }
 
         public IActionResult Delete(int id)

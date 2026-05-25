@@ -65,10 +65,11 @@
         var status = $('#statusFilter').val();
 
         $.get('@Url.Action("GetAll", "Patient")', { search: search, status: status }, function(data) {
+            console.log('Data received:', data);
             var tbody = $('#patientTable tbody');
             tbody.empty();
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.append('<tr><td colspan="9" class="text-center text-muted py-4">No patients found</td></tr>');
                 return;
             }
@@ -80,13 +81,13 @@
                 
                 tbody.append(`
                     <tr>
-                        <td><strong>${p.UHID}</strong></td>
-                        <td>${p.PatientName}</td>
-                        <td>${p.Gender}</td>
+                        <td><strong>${p.UHID || ''}</strong></td>
+                        <td>${p.PatientName || ''}</td>
+                        <td>${p.Gender || ''}</td>
                         <td>${p.Age || '-'}</td>
                         <td>${p.MobileNumber || '-'}</td>
                         <td>${p.Email || '-'}</td>
-                        <td>${p.RegistrationDate}</td>
+                        <td>${p.RegistrationDate || ''}</td>
                         <td>${statusBadge}</td>
                         <td>
                             <a href="@Url.Action("Edit", "Patient")/${p.Id}" class="btn btn-sm btn-primary" title="Edit">
@@ -99,6 +100,8 @@
                     </tr>
                 `);
             });
+        }).fail(function(err) {
+            console.log('Error:', err);
         });
     }
 </script>

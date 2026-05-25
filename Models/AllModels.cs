@@ -89,24 +89,24 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(50)]
-        public string UHID { get; set; } = "";
+        public string? UHID { get; set; }
 
         [MaxLength(200)]
         public string? PhotoPath { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string PatientName { get; set; } = "";
+        public string? PatientName { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
 
         public int? Age { get; set; }
 
         [MaxLength(10)]
-        public string Gender { get; set; } = "Male";
+        public string? Gender { get; set; }
 
         [MaxLength(20)]
-        public string MobileNumber { get; set; } = "";
+        public string? MobileNumber { get; set; }
 
         [MaxLength(20)]
         public string? AlternateMobile { get; set; }
