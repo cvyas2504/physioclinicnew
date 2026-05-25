@@ -1,0 +1,424 @@
+@model PhysioClinicPro.Models.ViewModels.BillViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.IsEdit ? "Modify Bill" : "Create New Bill";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-file-invoice-dollar me-2"></i>@(Model.IsEdit ? "Modify Bill" : "Create New Bill")</h2>
+        <p class="mb-0">@(Model.IsEdit ? "Update bill details" : "Generate a new bill for patient")</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Billing")" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+@using (Html.BeginForm(Model.IsEdit ? "Edit" : "Create", "Billing", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.IsEdit)
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Patient Selection</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Search Patient (UHID / Name / Mobile) <span class="text-danger">*</span></label>
+                            <input type="text" id="patientSearch" class="form-control" placeholder="Type to search..." autocomplete="off">
+                            <input type="hidden" id="selectedPatientId" name="PatientId" value="@Model.PatientId">
+                            @if (Model.PatientId > 0)
+                            {
+                                <script>document.addEventListener('DOMContentLoaded', function() {
+                                    $('#patientSearch').val('@Model.PatientUHID - @Model.PatientName').attr('readonly', 'readonly');
+                                });</script>
+                            }
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bill Date</label>
+                            <input type="date" name="BillDate" class="form-control" value="@Model.BillDate.ToString("yyyy-MM-dd")" @(Model.IsEdit ? "" : "readonly")>
+                        </div>
+                        <div class="col-md-3">
+                            @if (Model.IsEdit)
+                            {
+                                <label class="form-label">Bill Number</label>
+                                <input type="text" class="form-control" value="@Model.BillNumber" readonly>
+                            }
+                        </div>
+                    </div>
+                    <div id="patientInfo" class="mt-3" style="display: none;">
+                        <div class="alert alert-info">
+                            <strong>Selected Patient:</strong> <span id="selectedPatientName"></span><br>
+                            <strong>UHID:</strong> <span id="selectedPatientUHID"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Services</h5>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addServiceRow()">
+                        <i class="fas fa-plus me-1"></i>Add Service
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="servicesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%">Service</th>
+                                    <th style="width: 10%">Qty</th>
+                                    <th style="width: 12%">Rate (₹)</th>
+                                    <th style="width: 8%">Disc %</th>
+                                    <th style="width: 8%">Disc ₹</th>
+                                    <th style="width: 8%">GST %</th>
+                                    <th style="width: 10%">Net</th>
+                                    <th style="width: 6%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesBody">
+                                @if (Model.BillDetails.Any())
+                                {
+                                    var index = 0;
+                                    foreach (var detail in Model.BillDetails)
+                                    {
+                                        <tr class="service-row">
+                                            <td>
+                                                <select name="BillDetails[@index].ServiceId" class="form-select service-select" onchange="updateServiceRate(this)">
+                                                    <option value="">Select Service</option>
+                                                </select>
+                                                <input type="hidden" name="BillDetails[@index].Id" value="@detail.Id">
+                                            </td>
+                                            <td><input type="number" name="BillDetails[@index].Quantity" class="form-control qty-input" value="@detail.Quantity" min="1" onchange="calculateRowTotal(this)"></td>
+                                            <td><input type="number" name="BillDetails[@index].Rate" class="form-control rate-input" value="@detail.Rate" step="0.01" onchange="calculateRowTotal(this)"></td>
+                                            <td><input type="number" name="BillDetails[@index].DiscountPercentage" class="form-control disc-pct-input" value="@detail.DiscountPercentage" step="0.01" onchange="calculateRowTotal(this)"></td>
+                                            <td><input type="number" name="BillDetails[@index].DiscountAmount" class="form-control disc-amt-input" value="@detail.DiscountAmount" step="0.01" onchange="calculateRowTotal(this)"></td>
+                                            <td><input type="number" name="BillDetails[@index].GSTPercentage" class="form-control gst-input" value="@detail.GSTPercentage" step="0.01" onchange="calculateRowTotal(this)"></td>
+                                            <td class="net-amount text-end fw-bold">@detail.NetAmount.ToString("F2")</td>
+                                            <td><button type="button" class="btn btn-sm btn-danger" onclick="removeServiceRow(this)"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                        <tr class="d-none">
+                                            <td colspan="8">
+                                                <input type="hidden" name="BillDetails[@index].Amount" class="amount-input" value="@detail.Amount">
+                                                <input type="hidden" name="BillDetails[@index].GSTAmount" class="gst-amount-input" value="@detail.GSTAmount">
+                                                <input type="hidden" name="BillDetails[@index].NetAmount" class="net-amount-input" value="@detail.NetAmount">
+                                            </td>
+                                        </tr>
+                                        index++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Mode</label>
+                            <select id="paymentMode" class="form-select" onchange="togglePaymentDetails(this.value)">
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Net Banking">Net Banking</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="Mixed">Mixed (Multiple Modes)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Reference</label>
+                            <input type="text" id="paymentReference" class="form-control" placeholder="Card/UPI/Check No">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Amount</label>
+                            <input type="number" id="paymentAmount" class="form-control" step="0.01" placeholder="Enter amount" onchange="updatePaymentBreakdown()">
+                        </div>
+                    </div>
+                    
+                    <div id="mixedPaymentSection" style="display: none;">
+                        <h6>Mixed Payment Breakdown</h6>
+                        <div class="row">
+                            @foreach (var mode in new[] { "Cash", "Card", "UPI", "Net Banking", "Cheque" })
+                            {
+                                <div class="col-md-2">
+                                    <label>@mode</label>
+                                    <input type="number" name="mixed_@mode" class="form-control mixed-payment" step="0.01" placeholder="Amount" onchange="calculateMixedTotal()">
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Notes</label>
+                        @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", rows = "2", placeholder = "Any special notes or instructions" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update Bill" : "Generate Bill")
+                </button>
+                <a href="@Url.Action("Index", "Billing")" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Bill Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Amount:</span>
+                        <strong id="totalAmount">₹0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Discount:</span>
+                        <span id="totalDiscount">-₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>GST:</span>
+                        <span id="totalGST">+₹0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><strong>Net Amount:</strong></span>
+                        <strong id="netAmount" class="text-primary fs-5">₹0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Payment Received:</span>
+                        <span id="paidAmount" class="text-success">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger"><strong>Due Amount:</strong></span>
+                        <strong id="dueAmount" class="text-danger fs-5">₹0.00</strong>
+                    </div>
+
+                    <hr>
+                    <div class="d-none">
+                        @Html.TextBoxFor(m => m.PaidAmount, new { @class = "form-control", id = "hiddenPaidAmount" })
+                    </div>
+                    <button type="button" class="btn btn-primary w-100 mt-3" onclick="calculateTotals()">
+                        <i class="fas fa-sync me-2"></i>Update Summary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+    var services = [];
+    var serviceIndex = @((Model.BillDetails?.Count ?? 0) + 1);
+
+    $(document).ready(function() {
+        loadServices();
+        
+        @if (Model.PatientId > 0)
+        {
+            @:$('#patientInfo').show();
+            @:$('#selectedPatientName').text('@Model.PatientName');
+            @:$('#selectedPatientUHID').text('@Model.PatientUHID');
+        }
+
+        // Load services into select boxes
+        @if (Model.BillDetails.Any())
+        {
+            var idx = 0;
+            foreach (var detail in Model.BillDetails)
+            {
+                @:$('.service-row').eq(@idx).find('.service-select').val('@detail.ServiceId').attr('data-loaded', 'true');
+                idx++;
+            }
+        }
+    });
+
+    function loadServices() {
+        $.get('@Url.Action("GetServices", "Service")', function(data) {
+            services = data;
+            $('.service-select').each(function() {
+                updateServiceOptions(this);
+            });
+        });
+    }
+
+    function updateServiceOptions(selectElement) {
+        var $select = $(selectElement);
+        if ($select.find('option').length <= 1) {
+            $select.empty().append('<option value="">Select Service</option>');
+            services.forEach(function(s) {
+                $select.append(`<option value="${s.Id}" data-rate="${s.DefaultRate}" data-gst="${s.GSTPercentage}">${s.ServiceCode} - ${s.ServiceName} (₹${s.DefaultRate})</option>`);
+            });
+        }
+    }
+
+    function addServiceRow() {
+        var rowCount = $('.service-row').length;
+        var html = `
+            <tr class="service-row">
+                <td>
+                    <select name="BillDetails[${rowCount}].ServiceId" class="form-select service-select" onchange="updateServiceRate(this)">
+                        <option value="">Select Service</option>
+                    </select>
+                </td>
+                <td><input type="number" name="BillDetails[${rowCount}].Quantity" class="form-control qty-input" value="1" min="1" onchange="calculateRowTotal(this)"></td>
+                <td><input type="number" name="BillDetails[${rowCount}].Rate" class="form-control rate-input" value="0" step="0.01" onchange="calculateRowTotal(this)"></td>
+                <td><input type="number" name="BillDetails[${rowCount}].DiscountPercentage" class="form-control disc-pct-input" value="0" step="0.01" onchange="calculateRowTotal(this)"></td>
+                <td><input type="number" name="BillDetails[${rowCount}].DiscountAmount" class="form-control disc-amt-input" value="0" step="0.01" onchange="calculateRowTotal(this)"></td>
+                <td><input type="number" name="BillDetails[${rowCount}].GSTPercentage" class="form-control gst-input" value="18" step="0.01" onchange="calculateRowTotal(this)"></td>
+                <td class="net-amount text-end fw-bold">0.00</td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="removeServiceRow(this)"><i class="fas fa-trash"></i></button></td>
+            </tr>
+            <tr class="d-none">
+                <td colspan="8">
+                    <input type="hidden" name="BillDetails[${rowCount}].Amount" class="amount-input" value="0">
+                    <input type="hidden" name="BillDetails[${rowCount}].GSTAmount" class="gst-amount-input" value="0">
+                    <input type="hidden" name="BillDetails[${rowCount}].NetAmount" class="net-amount-input" value="0">
+                </td>
+            </tr>`;
+        
+        $('#servicesBody').append(html);
+        updateServiceOptions($('#servicesBody tr.service-row').last().find('.service-select'));
+    }
+
+    function removeServiceRow(btn) {
+        if ($('.service-row').length > 1) {
+            $(btn).closest('tr').next('tr').remove();
+            $(btn).closest('tr').remove();
+            calculateTotals();
+        } else {
+            alert('At least one service is required');
+        }
+    }
+
+    function updateServiceRate(select) {
+        var row = $(select).closest('tr');
+        var selectedOption = select.options[select.selectedIndex];
+        var rate = selectedOption.dataset.rate || 0;
+        var gst = selectedOption.dataset.gst || 18;
+
+        row.find('.rate-input').val(rate);
+        row.find('.gst-input').val(gst);
+        calculateRowTotal(select);
+    }
+
+    function calculateRowTotal(element) {
+        var row = $(element).closest('tr');
+        var qty = parseFloat(row.find('.qty-input').val()) || 0;
+        var rate = parseFloat(row.find('.rate-input').val()) || 0;
+        var discPct = parseFloat(row.find('.disc-pct-input').val()) || 0;
+        var discAmt = parseFloat(row.find('.disc-amt-input').val()) || 0;
+        var gstPct = parseFloat(row.find('.gst-input').val()) || 0;
+
+        var amount = qty * rate;
+        var discount = (amount * discPct / 100) + discAmt;
+        var taxableAmount = amount - discount;
+        var gstAmount = taxableAmount * gstPct / 100;
+        var netAmount = taxableAmount + gstAmount;
+
+        row.find('.net-amount').text(netAmount.toFixed(2));
+        row.next('tr').find('.amount-input').val(amount);
+        row.next('tr').find('.gst-amount-input').val(gstAmount);
+        row.next('tr').find('.net-amount-input').val(netAmount);
+
+        calculateTotals();
+    }
+
+    function calculateTotals() {
+        var totalAmount = 0;
+        var totalDiscount = 0;
+        var totalGST = 0;
+        var totalNet = 0;
+
+        $('.service-row').each(function() {
+            var amount = parseFloat($(this).next('tr').find('.amount-input').val()) || 0;
+            var discPct = parseFloat($(this).find('.disc-pct-input').val()) || 0;
+            var discAmt = parseFloat($(this).find('.disc-amt-input').val()) || 0;
+            var gstAmount = parseFloat($(this).next('tr').find('.gst-amount-input').val()) || 0;
+            var netAmount = parseFloat($(this).next('tr').find('.net-amount-input').val()) || 0;
+
+            totalAmount += amount;
+            totalDiscount += (amount * discPct / 100) + discAmt;
+            totalGST += gstAmount;
+            totalNet += netAmount;
+        });
+
+        var paidAmount = parseFloat($('#paymentAmount').val()) || 0;
+        var dueAmount = totalNet - paidAmount;
+
+        $('#totalAmount').text('₹' + totalAmount.toFixed(2));
+        $('#totalDiscount').text('-₹' + totalDiscount.toFixed(2));
+        $('#totalGST').text('+₹' + totalGST.toFixed(2));
+        $('#netAmount').text('₹' + totalNet.toFixed(2));
+        $('#paidAmount').text('₹' + paidAmount.toFixed(2));
+        $('#dueAmount').text('₹' + dueAmount.toFixed(2));
+        $('#hiddenPaidAmount').val(paidAmount);
+    }
+
+    function togglePaymentDetails(mode) {
+        if (mode === 'Mixed') {
+            $('#mixedPaymentSection').show();
+        } else {
+            $('#mixedPaymentSection').hide();
+        }
+    }
+
+    function calculateMixedTotal() {
+        var total = 0;
+        $('.mixed-payment').each(function() {
+            total += parseFloat($(this).val()) || 0;
+        });
+        $('#paymentAmount').val(total.toFixed(2));
+        calculateTotals();
+    }
+
+    function updatePaymentBreakdown() {
+        calculateTotals();
+    }
+
+    // Patient search
+    var searchTimeout;
+    $('#patientSearch').on('input', function() {
+        clearTimeout(searchTimeout);
+        var term = $(this).val();
+        
+        if (term.length < 2) {
+            $('#patientInfo').hide();
+            return;
+        }
+
+        searchTimeout = setTimeout(function() {
+            $.get('@Url.Action("SearchPatients", "Patient")', { term: term }, function(data) {
+                if (data.length === 1) {
+                    selectPatient(data[0]);
+                } else if (data.length > 1) {
+                    var list = data.map(p => `<li class="list-group-item" style="cursor:pointer" onclick="selectPatient(${JSON.stringify(p).replace(/"/g, '&quot;')})">${p.Display}</li>`).join('');
+                    $('#patientInfo').html(`<ul class="list-group">${list}</ul>`).show();
+                }
+            });
+        }, 300);
+    });
+
+    function selectPatient(patient) {
+        $('#patientSearch').val(patient.Display).attr('readonly', 'readonly');
+        $('#selectedPatientId').val(patient.Id);
+        $('#patientInfo').html(`<div class="alert alert-info"><strong>Selected Patient:</strong> ${patient.PatientName}<br><strong>UHID:</strong> ${patient.UHID}</div>`).show();
+    }
+</script>
+}

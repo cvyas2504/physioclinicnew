@@ -1,0 +1,186 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+            <p class="mb-0">Welcome back, @ViewBag.FullName!</p>
+        </div>
+        <div>
+            <h4 class="mb-0"><i class="fas fa-hospital me-2"></i>@ViewBag.ClinicName</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-users text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Patients</h6>
+                        <h3 class="mb-0">@ViewBag.TotalPatients</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-calendar-check text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Today's Patients</h6>
+                        <h3 class="mb-0">@ViewBag.TodayPatients</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-rupee-sign text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Today's Collection</h6>
+                        <h3 class="mb-0">₹@ViewBag.TodayRevenue.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-hand-holding-usd text-danger fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Due</h6>
+                        <h3 class="mb-0">₹@ViewBag.TotalDue.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-file-invoice text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Bills</h6>
+                        <h3 class="mb-0">@ViewBag.TotalBills</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-secondary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-hand-holding-medical text-secondary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Active Services</h6>
+                        <h3 class="mb-0">@ViewBag.Services</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <i class="fas fa-clock text-muted fa-3x mb-2"></i>
+                <p class="text-muted mb-0">@DateTime.Now.ToString("dddd")</p>
+                <h4 class="mb-0">@DateTime.Now.ToString("dd MMM yyyy")</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Create", "Patient")" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i>Register New Patient
+                    </a>
+                    <a href="@Url.Action("Create", "Billing")" class="btn btn-primary">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Create New Bill
+                    </a>
+                    <a href="@Url.Action("Create", "Service")" class="btn btn-secondary">
+                        <i class="fas fa-plus-circle me-2"></i>Add New Service
+                    </a>
+                    <a href="@Url.Action("Index", "Report")" class="btn btn-accent">
+                        <i class="fas fa-chart-bar me-2"></i>View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Info</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Version</strong></td>
+                        <td>1.0.0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Role</strong></td>
+                        <td>@ViewBag.Role</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Session Time</strong></td>
+                        <td>@DateTime.Now.ToString("hh:mm tt")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td><span class="badge bg-success">Connected</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

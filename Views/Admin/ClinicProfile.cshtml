@@ -1,0 +1,188 @@
+@model PhysioClinicPro.Models.ViewModels.ClinicProfileViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Clinic Profile";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-hospital me-2"></i>Clinic Profile</h2>
+        <p class="mb-0">Configure clinic settings for billing and branding</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        @using (Html.BeginForm("ClinicProfile", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.HiddenFor(m => m.Id)
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Clinic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Clinic Name <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.ClinicName, new { @class = "form-control", placeholder = "Enter clinic name", required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            @Html.TextBoxFor(m => m.ClinicEmail, new { @class = "form-control", placeholder = "Enter email", type = "email" })
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        @Html.TextAreaFor(m => m.ClinicAddress, new { @class = "form-control", rows = "2", placeholder = "Enter full address" })
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            @Html.TextBoxFor(m => m.ClinicPhone, new { @class = "form-control", placeholder = "Enter phone number" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Numbering Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">UHID Prefix <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.UHIDPrefix, new { @class = "form-control", placeholder = "PHY", required = "required" })
+                            <small class="text-muted">Patient ID prefix (e.g., PHY-2026-00001)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Invoice Prefix <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.InvoicePrefix, new { @class = "form-control", placeholder = "INV", required = "required" })
+                            <small class="text-muted">Bill number prefix (e.g., INV-2026-00001)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Billing Text</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Header Text</label>
+                        @Html.TextAreaFor(m => m.BillingHeaderText, new { @class = "form-control", rows = "3", placeholder = "Text to appear on bill header" })
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Footer Text</label>
+                        @Html.TextAreaFor(m => m.BillingFooterText, new { @class = "form-control", rows = "3", placeholder = "Text to appear on bill footer" })
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Footer Message</label>
+                        @Html.TextBoxFor(m => m.FooterMessage, new { @class = "form-control", placeholder = "Footer message for bills" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>Save Profile
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-image me-2"></i>Logo Upload</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <label class="form-label">Login Page Logo</label>
+                    <input type="file" id="loginLogo" class="form-control" accept="image/*" onchange="uploadLogo(this, 'login')">
+                    <small class="text-muted">Recommended: 200x200px, PNG or JPG</small>
+                    @if (!string.IsNullOrEmpty(Model.LoginLogo))
+                    {
+                        <div class="mt-2">
+                            <img src="@Model.LoginLogo" alt="Login Logo" style="max-height: 80px;">
+                        </div>
+                    }
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Billing Header Logo</label>
+                    <input type="file" id="headerLogo" class="form-control" accept="image/*" onchange="uploadLogo(this, 'header')">
+                    <small class="text-muted">Recommended: 300x80px, PNG or JPG</small>
+                    @if (!string.IsNullOrEmpty(Model.BillingHeaderLogo))
+                    {
+                        <div class="mt-2">
+                            <img src="@Model.BillingHeaderLogo" alt="Header Logo" style="max-height: 50px;">
+                        </div>
+                    }
+                </div>
+
+                <div>
+                    <label class="form-label">Billing Footer Logo</label>
+                    <input type="file" id="footerLogo" class="form-control" accept="image/*" onchange="uploadLogo(this, 'footer')">
+                    <small class="text-muted">Recommended: 200x50px, PNG or JPG</small>
+                    @if (!string.IsNullOrEmpty(Model.BillingFooterLogo))
+                    {
+                        <div class="mt-2">
+                            <img src="@Model.BillingFooterLogo" alt="Footer Logo" style="max-height: 40px;">
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    <strong>UHID Format:</strong> [Prefix]-[Year]-[Sequence]<br>
+                    Example: PHY-2026-00001
+                </p>
+                <hr>
+                <p class="small text-muted">
+                    <strong>Invoice Format:</strong> [Prefix]-[Year]-[Sequence]<br>
+                    Example: INV-2026-00001
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function uploadLogo(input, type) {
+        if (input.files && input.files[0]) {
+            var formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('type', type);
+
+            $.ajax({
+                url: '@Url.Action("UploadLogo", "Admin")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Logo uploaded successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                },
+                error: function() {
+                    alert('Upload failed');
+                }
+            });
+        }
+    }
+</script>
+}

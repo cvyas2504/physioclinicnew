@@ -1,0 +1,156 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Patient Ledger";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-book me-2"></i>Patient Ledger</h2>
+        <p class="mb-0">View complete transaction history for patients</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Credits</h6>
+                <h3 id="totalCredits" class="text-success">₹0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Debits</h6>
+                <h3 id="totalDebits" class="text-danger">₹0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Net Balance</h6>
+                <h3 id="netBalance" class="text-primary">₹0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Transaction History</h5>
+        <div class="d-flex gap-2">
+            <select id="patientSelect" class="form-select" style="width: 250px;">
+                <option value="">Select Patient</option>
+            </select>
+            <input type="date" id="fromDate" class="form-control" style="width: 150px;" value="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")">
+            <input type="date" id="toDate" class="form-control" style="width: 150px;" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            <button onclick="loadLedger()" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i>Search
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="ledgerTable" class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>UHID</th>
+                        <th>Type</th>
+                        <th>Reference</th>
+                        <th class="text-end">Debit (₹)</th>
+                        <th class="text-end">Credit (₹)</th>
+                        <th class="text-end">Balance (₹)</th>
+                        <th>Narration</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        loadPatients();
+    });
+
+    function loadPatients() {
+        $.get('@Url.Action("GetPatientsForLedger", "Report")', function(data) {
+            $('#patientSelect').empty().append('<option value="">All Patients</option>');
+            data.forEach(function(p) {
+                $('#patientSelect').append(`<option value="${p.Id}">${p.UHID} - ${p.PatientName}</option>`);
+            });
+        });
+    }
+
+    function loadLedger() {
+        var patientId = $('#patientSelect').val();
+        var fromDate = $('#fromDate').val();
+        var toDate = $('#toDate').val();
+
+        $.get('@Url.Action("PatientLedgerReport", "Report")', { 
+            patientId: patientId, 
+            fromDate: fromDate, 
+            toDate: toDate 
+        }, function(data) {
+            var tbody = $('#ledgerBody');
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="9" class="text-center py-4">No transactions found</td></tr>');
+                return;
+            }
+
+            var totalCredits = 0, totalDebits = 0;
+            var currentPatient = null;
+            var patientBalance = {};
+
+            data.forEach(function(l) {
+                // Calculate running balance per patient
+                if (!patientBalance[l.PatientId]) {
+                    patientBalance[l.PatientId] = 0;
+                }
+                patientBalance[l.PatientId] += l.Credit - l.Debit;
+                l.Balance = patientBalance[l.PatientId];
+
+                totalCredits += l.Credit;
+                totalDebits += l.Debit;
+
+                var typeBadge = getTypeBadge(l.TransactionType);
+                tbody.append(`<tr>
+                    <td>${l.TransactionDate}</td>
+                    <td>${l.PatientName}</td>
+                    <td>${l.PatientUHID}</td>
+                    <td>${typeBadge}</td>
+                    <td>${l.ReferenceNumber || '-'}</td>
+                    <td class="text-end">${l.Debit > 0 ? l.Debit.toLocaleString() : '-'}</td>
+                    <td class="text-end">${l.Credit > 0 ? l.Credit.toLocaleString() : '-'}</td>
+                    <td class="text-end fw-bold ${l.Balance >= 0 ? 'text-success' : 'text-danger'}">${l.Balance.toLocaleString()}</td>
+                    <td>${l.Narration || '-'}</td>
+                </tr>`);
+            });
+
+            $('#totalCredits').text('₹' + totalCredits.toLocaleString());
+            $('#totalDebits').text('₹' + totalDebits.toLocaleString());
+            $('#netBalance').text('₹' + (totalCredits - totalDebits).toLocaleString());
+        });
+    }
+
+    function getTypeBadge(type) {
+        var colors = {
+            'Bill': 'bg-primary',
+            'Payment': 'bg-success',
+            'Refund': 'bg-warning',
+            'Discount': 'bg-info',
+            'Bill Cancelled': 'bg-danger'
+        };
+        return `<span class="badge ${colors[type] || 'bg-secondary'}">${type}</span>`;
+    }
+</script>
+}

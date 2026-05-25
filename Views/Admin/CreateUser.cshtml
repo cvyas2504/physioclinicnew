@@ -1,0 +1,99 @@
+@model PhysioClinicPro.Models.ViewModels.UserViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.IsEdit ? "Edit User" : "Add New User";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-user-plus me-2"></i>@(Model.IsEdit ? "Edit User" : "Add New User")</h2>
+        <p class="mb-0">@(Model.IsEdit ? "Update user information" : "Create a new system user")</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Users", "Admin")" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>User Details</h5>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("CreateUser", "Admin", FormMethod.Post))
+                {
+                    @Html.HiddenFor(m => m.Id)
+                    @Html.HiddenFor(m => m.IsEdit)
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Enter username", required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Password @(Model.IsEdit ? "(Leave blank to keep current)" : "<span class='text-danger'>*</span>")</label>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = Model.IsEdit ? "Leave blank to keep current" : "Enter password" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Enter full name", required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.Role, new SelectList(new[] { "Admin", "Receptionist", "Physiotherapist", "Billing Staff" }), new { @class = "form-select" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number</label>
+                            @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Enter mobile number" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Enter email address", type = "email" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", @id = "statusSwitch" })
+                            <label class="form-check-label" for="statusSwitch"><strong>Active User</strong></label>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update User" : "Create User")
+                        </button>
+                        <a href="@Url.Action("Users", "Admin")" class="btn btn-secondary btn-lg ms-2">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Role Permissions</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><strong>Admin:</strong> Full system access, settings management</li>
+                    <li class="mb-2"><strong>Receptionist:</strong> Patient registration, billing</li>
+                    <li class="mb-2"><strong>Physiotherapist:</strong> Patient management, reports view</li>
+                    <li class="mb-2"><strong>Billing Staff:</strong> Billing operations, reports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

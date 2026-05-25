@@ -1,0 +1,277 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Billing";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-file-invoice-dollar me-2"></i>Billing Management</h2>
+        <p class="mb-0">Create bills, manage payments, and track invoices</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Create", "Billing")" class="btn btn-light">
+            <i class="fas fa-plus me-2"></i>New Bill
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Active Bills</h6>
+                <h3 id="activeBills">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Collection</h6>
+                <h3 id="totalCollection">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Total Due</h6>
+                <h3 id="totalDue">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Cancelled</h6>
+                <h3 id="cancelledBills">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Bill List</h5>
+        <div class="d-flex gap-2">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by Bill No, Patient..." style="width: 200px;">
+            <select id="statusFilter" class="form-select" style="width: 130px;">
+                <option value="all">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+            <input type="date" id="fromDate" class="form-control" style="width: 150px;">
+            <input type="date" id="toDate" class="form-control" style="width: 150px;">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="billTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Bill No</th>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>UHID</th>
+                        <th>Total (₹)</th>
+                        <th>Discount (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Net Amount (₹)</th>
+                        <th>Paid (₹)</th>
+                        <th>Due (₹)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bill Details Modal -->
+<div class="modal fade" id="billDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bill Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="billDetailsContent">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        loadBills();
+
+        $('#searchInput, #statusFilter, #fromDate, #toDate').on('change keyup', function() {
+            loadBills();
+        });
+    });
+
+    function loadBills() {
+        var search = $('#searchInput').val();
+        var status = $('#statusFilter').val();
+        var fromDate = $('#fromDate').val();
+        var toDate = $('#toDate').val();
+
+        $.get('@Url.Action("GetAll", "Billing")', { 
+            search: search, 
+            status: status,
+            fromDate: fromDate,
+            toDate: toDate
+        }, function(data) {
+            var tbody = $('#billTable tbody');
+            tbody.empty();
+
+            // Update stats
+            var activeBills = data.filter(b => b.Status === 'Active').length;
+            var totalCollection = data.reduce((sum, b) => sum + (b.PaidAmount || 0), 0);
+            var totalDue = data.reduce((sum, b) => sum + (b.DueAmount || 0), 0);
+            var cancelled = data.filter(b => b.Status === 'Cancelled').length;
+
+            $('#activeBills').text(activeBills);
+            $('#totalCollection').text('₹' + totalCollection.toLocaleString());
+            $('#totalDue').text('₹' + totalDue.toLocaleString());
+            $('#cancelledBills').text(cancelled);
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="12" class="text-center text-muted py-4">No bills found</td></tr>');
+                return;
+            }
+
+            data.forEach(function(b) {
+                var statusBadge = b.Status === 'Active' 
+                    ? '<span class="badge bg-success">Active</span>' 
+                    : '<span class="badge bg-danger">Cancelled</span>';
+                
+                var actionBtns = `<div class="btn-group btn-group-sm">
+                    <button onclick="viewBill(${b.Id})" class="btn btn-info" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <a href="@Url.Action("Print", "Billing")/${b.Id}" target="_blank" class="btn btn-secondary" title="Print">
+                        <i class="fas fa-print"></i>
+                    </a>`;
+
+                if (b.Status === 'Active') {
+                    actionBtns += `
+                    <a href="@Url.Action("Edit", "Billing")/${b.Id}" class="btn btn-primary" title="Modify">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="@Url.Action("Discount", "Billing")/${b.Id}" class="btn btn-warning" title="Discount">
+                        <i class="fas fa-percent"></i>
+                    </a>
+                    <a href="@Url.Action("CollectPayment", "Billing")/${b.Id}" class="btn btn-success" title="Collect Payment">
+                        <i class="fas fa-rupee-sign"></i>
+                    </a>
+                    <a href="@Url.Action("Refund", "Billing")/${b.Id}" class="btn btn-danger" title="Refund">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                    <a href="@Url.Action("Cancel", "Billing")/${b.Id}" class="btn btn-dark" title="Cancel">
+                        <i class="fas fa-times"></i>
+                    </a>`;
+                }
+
+                actionBtns += '</div>';
+
+                tbody.append(`
+                    <tr>
+                        <td><strong>${b.BillNumber}</strong></td>
+                        <td>${b.BillDate}</td>
+                        <td>${b.PatientName || 'N/A'}</td>
+                        <td>${b.PatientUHID || 'N/A'}</td>
+                        <td>${b.TotalAmount.toLocaleString()}</td>
+                        <td>${b.DiscountAmount.toLocaleString()}</td>
+                        <td>${b.GSTAmount.toLocaleString()}</td>
+                        <td><strong>${b.NetAmount.toLocaleString()}</strong></td>
+                        <td>${b.PaidAmount.toLocaleString()}</td>
+                        <td class="text-danger">${b.DueAmount.toLocaleString()}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtns}</td>
+                    </tr>
+                `);
+            });
+        });
+    }
+
+    function viewBill(id) {
+        $.get('@Url.Action("GetBill", "Billing")/' + id, function(data) {
+            var detailsHtml = `
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Bill Number:</strong> ${data.BillNumber}<br>
+                        <strong>Patient:</strong> ${data.PatientName} (${data.PatientUHID})<br>
+                        <strong>Date:</strong> ${new Date(data.BillDate).toLocaleDateString()}
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <strong>Status:</strong> <span class="badge ${data.Status === 'Active' ? 'bg-success' : 'bg-danger'}">${data.Status}</span><br>
+                        <strong>Net Amount:</strong> ₹${data.NetAmount.toLocaleString()}
+                    </div>
+                </div>
+                <hr>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            <th>Disc %</th>
+                            <th>Disc ₹</th>
+                            <th>GST %</th>
+                            <th>GST ₹</th>
+                            <th>Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            data.BillDetails.forEach(function(d) {
+                detailsHtml += `<tr>
+                    <td>${d.ServiceName}</td>
+                    <td>${d.Quantity}</td>
+                    <td>${d.Rate.toLocaleString()}</td>
+                    <td>${d.Amount.toLocaleString()}</td>
+                    <td>${d.DiscountPercentage}%</td>
+                    <td>${d.DiscountAmount.toLocaleString()}</td>
+                    <td>${d.GSTPercentage}%</td>
+                    <td>${d.GSTAmount.toLocaleString()}</td>
+                    <td><strong>${d.NetAmount.toLocaleString()}</strong></td>
+                </tr>`;
+            });
+
+            detailsHtml += `</tbody></table>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <strong>Payments:</strong>
+                        <ul>`;
+            
+            data.BillPayments.forEach(function(p) {
+                detailsHtml += `<li>${p.PaymentMode}: ₹${p.Amount.toLocaleString()}${p.PaymentReference ? ' (' + p.PaymentReference + ')' : ''}</li>`;
+            });
+
+            detailsHtml += `</ul>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <p>Total: ₹${data.TotalAmount.toLocaleString()}</p>
+                        <p>Discount: ₹${data.DiscountAmount.toLocaleString()}</p>
+                        <p>GST: ₹${data.GSTAmount.toLocaleString()}</p>
+                        <h4>Net Amount: ₹${data.NetAmount.toLocaleString()}</h4>
+                        <p>Paid: ₹${data.PaidAmount.toLocaleString()}</p>
+                        <p class="text-danger">Due: ₹${data.DueAmount.toLocaleString()}</p>
+                    </div>
+                </div>`;
+
+            $('#billDetailsContent').html(detailsHtml);
+            new bootstrap.Modal(document.getElementById('billDetailsModal')).show();
+        });
+    }
+</script>
+}

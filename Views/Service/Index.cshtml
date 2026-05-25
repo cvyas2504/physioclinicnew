@@ -1,0 +1,105 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Service Master";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-hand-holding-medical me-2"></i>Service Master</h2>
+        <p class="mb-0">Manage clinic services and their pricing</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Create", "Service")" class="btn btn-light">
+            <i class="fas fa-plus me-2"></i>Add Service
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Service List</h5>
+        <div class="d-flex gap-2">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search services..." style="width: 250px;">
+            <select id="categoryFilter" class="form-select" style="width: 150px;">
+                <option value="all">All Categories</option>
+                <option value="Consultation">Consultation</option>
+                <option value="Therapy">Therapy</option>
+                <option value="Investigation">Investigation</option>
+                <option value="Package">Package</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="serviceTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Service Name</th>
+                        <th>Category</th>
+                        <th>Rate (₹)</th>
+                        <th>Duration (min)</th>
+                        <th>GST %</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function() {
+        loadServices();
+
+        $('#searchInput, #categoryFilter').on('change keyup', function() {
+            loadServices();
+        });
+    });
+
+    function loadServices() {
+        var search = $('#searchInput').val();
+        var category = $('#categoryFilter').val();
+
+        $.get('@Url.Action("GetAll", "Service")', { search: search, category: category }, function(data) {
+            var tbody = $('#serviceTable tbody');
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No services found</td></tr>');
+                return;
+            }
+
+            data.forEach(function(s) {
+                var statusBadge = s.IsActive 
+                    ? '<span class="badge bg-success">Active</span>' 
+                    : '<span class="badge bg-secondary">Inactive</span>';
+                
+                tbody.append(`
+                    <tr>
+                        <td><strong>${s.ServiceCode}</strong></td>
+                        <td>${s.ServiceName}</td>
+                        <td><span class="badge bg-info">${s.Category}</span></td>
+                        <td>₹${s.DefaultRate.toLocaleString()}</td>
+                        <td>${s.DurationMinutes}</td>
+                        <td>${s.GSTPercentage}%</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <a href="@Url.Action("Edit", "Service")/${s.Id}" class="btn btn-sm btn-primary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="@Url.Action("Delete", "Service")/${s.Id}" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+    }
+</script>
+}

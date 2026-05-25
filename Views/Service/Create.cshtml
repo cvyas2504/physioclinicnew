@@ -1,0 +1,118 @@
+@model PhysioClinicPro.Models.ViewModels.ServiceViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.IsEdit ? "Edit Service" : "Add New Service";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-plus-circle me-2"></i>@(Model.IsEdit ? "Edit Service" : "Add New Service")</h2>
+        <p class="mb-0">@(Model.IsEdit ? "Update service information" : "Create a new service for the clinic")</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Service")" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+@using (Html.BeginForm(Model.IsEdit ? "Edit" : "Create", "Service", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.IsEdit)
+    @Html.HiddenFor(m => m.ServiceCode)
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-hand-holding-medical me-2"></i>Service Details</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.IsEdit)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-tag me-2"></i>
+                            <strong>Service Code: @Model.ServiceCode</strong>
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Service Name <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.ServiceName, new { @class = "form-control", placeholder = "Enter service name", required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.Category, new SelectList(new[] { "Consultation", "Therapy", "Investigation", "Package" }), new { @class = "form-select" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3", placeholder = "Enter service description" })
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Default Rate (₹) <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.DefaultRate, new { @class = "form-control", placeholder = "0.00", type = "number", step = "0.01", required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Duration (minutes)</label>
+                            @Html.TextBoxFor(m => m.DurationMinutes, new { @class = "form-control", placeholder = "30", type = "number" })
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">GST Percentage (%)</label>
+                            @Html.TextBoxFor(m => m.GSTPercentage, new { @class = "form-control", placeholder = "18", type = "number", step = "0.01" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", @id = "statusSwitch" })
+                            <label class="form-check-label" for="statusSwitch"><strong>Active Service</strong></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update Service" : "Save Service")
+                </button>
+                <a href="@Url.Action("Index", "Service")" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Category Guide</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Consultation:</strong> Doctor/Physio consultations</li>
+                        <li class="mb-2"><strong>Therapy:</strong> Treatment sessions</li>
+                        <li class="mb-2"><strong>Investigation:</strong> Tests and diagnostics</li>
+                        <li class="mb-2"><strong>Package:</strong> Bundled services</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Rate Calculation</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">
+                        Net Amount = (Rate × Qty) - Discount + GST<br>
+                        Example: ₹500 - 10% discount + 18% GST = ₹531
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

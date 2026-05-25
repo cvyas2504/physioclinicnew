@@ -1,0 +1,196 @@
+@model PhysioClinicPro.Models.ViewModels.PatientViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.IsEdit ? "Edit Patient" : "New Patient Registration";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-user-plus me-2"></i>@(Model.IsEdit ? "Edit Patient" : "New Patient Registration")</h2>
+        <p class="mb-0">@(Model.IsEdit ? "Update patient information" : "Register a new patient with auto-generated UHID")</p>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Patient")" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+@using (Html.BeginForm(Model.IsEdit ? "Edit" : "Create", "Patient", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.IsEdit)
+    @Html.HiddenFor(m => m.UHID)
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.IsEdit)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>UHID will be auto-generated</strong> on saving the patient record.
+                            Format: [Prefix]-[Year]-[Sequence] (e.g., PHY-2026-00001)
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-id-card me-2"></i>
+                            <strong>UHID: @Model.UHID</strong>
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Patient Name <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.PatientName, new { @class = "form-control", placeholder = "Enter full name", required = "required" })
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Gender</label>
+                            @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female", "Other" }), new { @class = "form-select" })
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Age</label>
+                            @Html.TextBoxFor(m => m.Age, new { @class = "form-control", placeholder = "Age", type = "number" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Blood Group</label>
+                            @Html.DropDownListFor(m => m.BloodGroup, new SelectList(new[] { "", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-" }), new { @class = "form-select" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                            @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Enter mobile number", required = "required" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Alternate Mobile</label>
+                            @Html.TextBoxFor(m => m.AlternateMobile, new { @class = "form-control", placeholder = "Enter alternate mobile" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Enter email address", type = "email" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Registration Date</label>
+                            @Html.TextBoxFor(m => m.RegistrationDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", @readonly = "readonly" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "2", placeholder = "Enter full address" })
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">City</label>
+                            @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "City" })
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">State</label>
+                            @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "State" })
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Pincode</label>
+                            @Html.TextBoxFor(m => m.Pincode, new { @class = "form-control", placeholder = "Pincode" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Medical Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Emergency Contact Name</label>
+                            @Html.TextBoxFor(m => m.EmergencyContactName, new { @class = "form-control", placeholder = "Emergency contact name" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Emergency Contact Number</label>
+                            @Html.TextBoxFor(m => m.EmergencyContactNumber, new { @class = "form-control", placeholder = "Emergency contact number" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Refer Doctor Name</label>
+                            @Html.TextBoxFor(m => m.ReferDoctorName, new { @class = "form-control", placeholder = "Refer doctor name (if any)" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <div class="form-check form-switch mt-2">
+                                @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", @id = "statusSwitch" })
+                                <label class="form-check-label" for="statusSwitch">Active Patient</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Medical History</label>
+                        @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = "3", placeholder = "Enter any relevant medical history" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Allergies</label>
+                        @Html.TextAreaFor(m => m.Allergies, new { @class = "form-control", rows = "2", placeholder = "Enter any known allergies" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update Patient" : "Register Patient")
+                </button>
+                <a href="@Url.Action("Index", "Patient")" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        <strong>UHID Format:</strong><br>
+                        Prefix-Year-Sequence<br>
+                        Example: PHY-2026-00001
+                    </p>
+                    <hr>
+                    <p class="text-muted small">
+                        <strong>Note:</strong> UHID prefix can be configured in Clinic Profile settings.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

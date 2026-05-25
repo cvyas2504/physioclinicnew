@@ -1,0 +1,387 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Reports";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="fas fa-chart-bar me-2"></i>Reports</h2>
+        <p class="mb-0">Generate and export various clinic reports</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <a href="#" onclick="showReport('patient')" class="text-decoration-none">
+            <div class="card card-stat h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h5>Patient Report</h5>
+                    <p class="text-muted small mb-0">Registration details</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="#" onclick="showReport('billing')" class="text-decoration-none">
+            <div class="card card-stat h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-invoice fa-3x text-success mb-3"></i>
+                    <h5>Billing Report</h5>
+                    <p class="text-muted small mb-0">Invoice details</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="#" onclick="showReport('ledger')" class="text-decoration-none">
+            <div class="card card-stat h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-book fa-3x text-warning mb-3"></i>
+                    <h5>Patient Ledger</h5>
+                    <p class="text-muted small mb-0">Transaction history</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="#" onclick="showReport('revenue')" class="text-decoration-none">
+            <div class="card card-stat h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-pie fa-3x text-danger mb-3"></i>
+                    <h5>Revenue Report</h5>
+                    <p class="text-muted small mb-0">Collection analysis</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="card" id="reportSection" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" id="reportTitle">Report</h5>
+        <div>
+            <button onclick="exportReport('pdf')" class="btn btn-sm btn-danger">
+                <i class="fas fa-file-pdf me-1"></i>PDF
+            </button>
+            <button onclick="exportReport('excel')" class="btn btn-sm btn-success">
+                <i class="fas fa-file-excel me-1"></i>Excel
+            </button>
+            <button onclick="printReport()" class="btn btn-sm btn-primary">
+                <i class="fas fa-print me-1"></i>Print
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3" id="filterSection">
+            <div class="col-md-2">
+                <label>From Date</label>
+                <input type="date" id="fromDate" class="form-control" value="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-2">
+                <label>To Date</label>
+                <input type="date" id="toDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-2" id="patientFilterSection" style="display: none;">
+                <label>Patient</label>
+                <select id="patientFilter" class="form-select">
+                    <option value="">All Patients</option>
+                </select>
+            </div>
+            <div class="col-md-2" id="statusFilterSection" style="display: none;">
+                <label>Status</label>
+                <select id="statusFilter" class="form-select">
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <button onclick="loadReportData()" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-1"></i>Search
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="reportTable" class="table table-striped">
+                <thead id="reportHeader"></thead>
+                <tbody id="reportBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mt-3" id="summaryCards" style="display: none;">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 id="summary1">-</h4>
+                <p class="mb-0" id="summaryLabel1">-</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 id="summary2">-</h4>
+                <p class="mb-0" id="summaryLabel2">-</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 id="summary3">-</h4>
+                <p class="mb-0" id="summaryLabel3">-</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h4 id="summary4">-</h4>
+                <p class="mb-0" id="summaryLabel4">-</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var currentReport = '';
+    
+    function showReport(type) {
+        currentReport = type;
+        $('#reportSection').show();
+        $('#summaryCards').show();
+        
+        $('#statusFilterSection, #patientFilterSection').hide();
+        
+        switch(type) {
+            case 'patient':
+                $('#reportTitle').text('Patient Report');
+                $('#reportHeader').html(`<tr>
+                    <th>UHID</th><th>Patient Name</th><th>Gender</th><th>Age</th>
+                    <th>Mobile</th><th>Email</th><th>City</th>
+                    <th>Registration Date</th><th>Status</th>
+                </tr>`);
+                break;
+            case 'billing':
+                $('#reportTitle').text('Billing Report');
+                $('#reportHeader').html(`<tr>
+                    <th>Bill No</th><th>Date</th><th>Patient</th><th>UHID</th>
+                    <th>Total</th><th>Discount</th><th>GST</th><th>Net Amount</th>
+                    <th>Paid</th><th>Due</th><th>Status</th>
+                </tr>`);
+                break;
+            case 'ledger':
+                $('#reportTitle').text('Patient Ledger Report');
+                $('#patientFilterSection').show();
+                loadPatientsForFilter();
+                $('#reportHeader').html(`<tr>
+                    <th>Date</th><th>Patient</th><th>UHID</th><th>Type</th>
+                    <th>Reference</th><th>Debit</th><th>Credit</th><th>Balance</th><th>Narration</th>
+                </tr>`);
+                break;
+            case 'revenue':
+                $('#reportTitle').text('Revenue Report');
+                $('#reportHeader').html(`<tr>
+                    <th>Date</th><th>Collection (₹)</th><th>Transactions</th>
+                </tr>`);
+                break;
+        }
+        
+        loadReportData();
+    }
+
+    function loadPatientsForFilter() {
+        $.get('@Url.Action("GetPatientsForLedger", "Report")', function(data) {
+            $('#patientFilter').empty().append('<option value="">All Patients</option>');
+            data.forEach(function(p) {
+                $('#patientFilter').append(`<option value="${p.Id}">${p.UHID} - ${p.PatientName}</option>`);
+            });
+        });
+    }
+
+    function loadReportData() {
+        var fromDate = $('#fromDate').val();
+        var toDate = $('#toDate').val();
+        var patientId = $('#patientFilter').val();
+        var status = $('#statusFilter').val();
+
+        switch(currentReport) {
+            case 'patient':
+                $.get('@Url.Action("PatientReport", "Report")', { fromDate: fromDate, toDate: toDate, status: status }, function(data) {
+                    renderPatientReport(data);
+                });
+                break;
+            case 'billing':
+                $.get('@Url.Action("BillingReport", "Report")', { fromDate: fromDate, toDate: toDate, status: status }, function(data) {
+                    renderBillingReport(data);
+                });
+                break;
+            case 'ledger':
+                $.get('@Url.Action("PatientLedgerReport", "Report")', { patientId: patientId, fromDate: fromDate, toDate: toDate }, function(data) {
+                    renderLedgerReport(data);
+                });
+                break;
+            case 'revenue':
+                $.get('@Url.Action("RevenueReport", "Report")', { fromDate: fromDate, toDate: toDate }, function(data) {
+                    renderRevenueReport(data);
+                });
+                break;
+        }
+    }
+
+    function renderPatientReport(data) {
+        var tbody = $('#reportBody');
+        tbody.empty();
+
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="9" class="text-center py-4">No records found</td></tr>');
+            return;
+        }
+
+        data.forEach(function(p) {
+            var statusBadge = p.IsActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>';
+            tbody.append(`<tr>
+                <td><strong>${p.UHID}</strong></td>
+                <td>${p.PatientName}</td>
+                <td>${p.Gender}</td>
+                <td>${p.Age || '-'}</td>
+                <td>${p.MobileNumber || '-'}</td>
+                <td>${p.Email || '-'}</td>
+                <td>${p.City || '-'}</td>
+                <td>${p.RegistrationDate}</td>
+                <td>${statusBadge}</td>
+            </tr>`);
+        });
+
+        $('#summary1').text(data.length);
+        $('#summaryLabel1').text('Total Patients');
+        $('#summary2').text(data.filter(p => p.IsActive).length);
+        $('#summaryLabel2').text('Active');
+        $('#summary3').text(data.filter(p => p.RegistrationType === 'New').length);
+        $('#summaryLabel3').text('New Registrations');
+        $('#summary4').text(data.filter(p => !p.IsActive).length);
+        $('#summaryLabel4').text('Inactive');
+    }
+
+    function renderBillingReport(data) {
+        var tbody = $('#reportBody');
+        tbody.empty();
+
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="11" class="text-center py-4">No records found</td></tr>');
+            return;
+        }
+
+        var totalNet = 0, totalPaid = 0, totalDue = 0;
+        data.forEach(function(b) {
+            var statusBadge = b.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Cancelled</span>';
+            tbody.append(`<tr>
+                <td><strong>${b.BillNumber}</strong></td>
+                <td>${b.BillDate}</td>
+                <td>${b.PatientName}</td>
+                <td>${b.PatientUHID}</td>
+                <td>${b.TotalAmount.toLocaleString()}</td>
+                <td>${b.DiscountAmount.toLocaleString()}</td>
+                <td>${b.GSTAmount.toLocaleString()}</td>
+                <td><strong>${b.NetAmount.toLocaleString()}</strong></td>
+                <td>${b.PaidAmount.toLocaleString()}</td>
+                <td class="text-danger">${b.DueAmount.toLocaleString()}</td>
+                <td>${statusBadge}</td>
+            </tr>`);
+            totalNet += b.NetAmount;
+            totalPaid += b.PaidAmount;
+            totalDue += b.DueAmount;
+        });
+
+        $('#summary1').text('₹' + totalNet.toLocaleString());
+        $('#summaryLabel1').text('Total Billing');
+        $('#summary2').text('₹' + totalPaid.toLocaleString());
+        $('#summaryLabel2').text('Total Collection');
+        $('#summary3').text('₹' + totalDue.toLocaleString());
+        $('#summaryLabel3').text('Total Due');
+        $('#summary4').text(data.length);
+        $('#summaryLabel4').text('Total Bills');
+    }
+
+    function renderLedgerReport(data) {
+        var tbody = $('#reportBody');
+        tbody.empty();
+
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="9" class="text-center py-4">No records found</td></tr>');
+            return;
+        }
+
+        data.forEach(function(l) {
+            tbody.append(`<tr>
+                <td>${l.TransactionDate}</td>
+                <td>${l.PatientName}</td>
+                <td>${l.PatientUHID}</td>
+                <td><span class="badge bg-info">${l.TransactionType}</span></td>
+                <td>${l.ReferenceNumber || '-'}</td>
+                <td>${l.Debit > 0 ? '₹' + l.Debit.toLocaleString() : '-'}</td>
+                <td>${l.Credit > 0 ? '₹' + l.Credit.toLocaleString() : '-'}</td>
+                <td><strong>₹${l.Balance.toLocaleString()}</strong></td>
+                <td>${l.Narration || '-'}</td>
+            </tr>`);
+        });
+
+        $('#summary1').text(data.length);
+        $('#summaryLabel1').text('Total Transactions');
+        $('#summary2').text('₹' + data.reduce((sum, l) => sum + l.Credit, 0).toLocaleString());
+        $('#summaryLabel2').text('Total Credits');
+        $('#summary3').text('₹' + data.reduce((sum, l) => sum + l.Debit, 0).toLocaleString());
+        $('#summaryLabel3').text('Total Debits');
+        $('#summary4').text(data.filter(l => l.PatientId).length);
+        $('#summaryLabel4').text('Patients');
+    }
+
+    function renderRevenueReport(data) {
+        var tbody = $('#reportBody');
+        tbody.empty();
+
+        $('#reportHeader').html(`<tr>
+            <th>Date</th><th>Collection (₹)</th><th>Transactions</th>
+        </tr>`);
+
+        if (data.DailySummary && data.DailySummary.length > 0) {
+            data.DailySummary.forEach(function(d) {
+                tbody.append(`<tr>
+                    <td>${d.Date}</td>
+                    <td><strong>₹${d.TotalCollection.toLocaleString()}</strong></td>
+                    <td>${d.TransactionCount}</td>
+                </tr>`);
+            });
+        } else {
+            tbody.append('<tr><td colspan="3" class="text-center py-4">No records found</td></tr>');
+        }
+
+        // Update summary
+        if (data.Summary) {
+            $('#summary1').text('₹' + data.Summary.TotalCollection.toLocaleString());
+            $('#summaryLabel1').text('Total Collection');
+            $('#summary2').text('₹' + data.Summary.TotalBilling.toLocaleString());
+            $('#summaryLabel2').text('Total Billing');
+            $('#summary3').text('₹' + data.Summary.TotalDue.toLocaleString());
+            $('#summaryLabel3').text('Total Due');
+            $('#summary4').text(data.Summary.CancelledBills);
+            $('#summaryLabel4').text('Cancelled Bills');
+        }
+    }
+
+    function exportReport(format) {
+        alert('Export to ' + format.toUpperCase() + ' feature - implement with server-side export library');
+    }
+
+    function printReport() {
+        window.print();
+    }
+</script>
+}
