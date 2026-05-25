@@ -36,7 +36,7 @@ namespace PhysioClinicPro.Data
                 ClinicEmail = "info@physioclinicpro.com",
                 UHIDPrefix = "PHY",
                 InvoicePrefix = "INV",
-                CreatedDate = DateTime.Now
+                CreatedDate = new DateTime(2026, 1, 1)
             });
 
             // Default Admin User (Password: Admin@123)
@@ -50,7 +50,7 @@ namespace PhysioClinicPro.Data
                 MobileNumber = "9876543210",
                 Email = "admin@physioclinicpro.com",
                 IsActive = true,
-                CreatedDate = DateTime.Now
+                CreatedDate = new DateTime(2026, 1, 1)
             });
 
             // Default Service Categories
@@ -66,7 +66,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 30,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -79,7 +79,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 20,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -92,7 +92,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 30,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -105,7 +105,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 60,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -118,7 +118,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 25,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -131,7 +131,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 20,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -144,7 +144,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 45,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 },
                 new Service
                 {
@@ -157,7 +157,7 @@ namespace PhysioClinicPro.Data
                     DurationMinutes = 40,
                     GSTPercentage = 18,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2026, 1, 1)
                 }
             );
         }
