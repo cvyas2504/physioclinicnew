@@ -1,197 +1,137 @@
 @model PhysioClinicPro.Models.ViewModels.PatientViewModel
 @{
     Layout = "_Layout";
-    ViewData["Title"] = Model.IsEdit ? "Edit Patient" : "New Patient Registration";
+    ViewData["Title"] = "New Patient Registration";
 }
 
-<div class="page-header d-flex justify-content-between align-items-center">
-    <div>
-        <h2><i class="fas fa-user-plus me-2"></i>@(Model.IsEdit ? "Edit Patient" : "New Patient Registration")</h2>
-        <p class="mb-0">@(Model.IsEdit ? "Update patient information" : "Register a new patient with auto-generated UHID")</p>
-    </div>
-    <div>
-        <a href="@Url.Action("Index", "Patient")" class="btn btn-light">
-            <i class="fas fa-arrow-left me-2"></i>Back to List
-        </a>
-    </div>
+<div class="page-header">
+    <h2><i class="fas fa-user-plus me-2"></i>New Patient Registration</h2>
+    <p>Register a new patient with auto-generated UHID</p>
 </div>
 
-@using (Html.BeginForm(Model.IsEdit ? "Edit" : "Create", "Patient", FormMethod.Post))
+@if (TempData["Error"] != null)
 {
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Create" asp-controller="Patient" method="post">
     @Html.AntiForgeryToken()
-    @Html.HiddenFor(m => m.Id)
-    @Html.HiddenFor(m => m.IsEdit)
-    @Html.HiddenFor(m => m.UHID)
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>UHID will be auto-generated</strong> on saving. Format: [Prefix]-[Year]-[Sequence]
+            </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Patient Name *</label>
+                    <input asp-for="PatientName" class="form-control" required />
+                    <span asp-validation-for="PatientName" class="text-danger"></span>
                 </div>
-                <div class="card-body">
-                    @if (!Model.IsEdit)
-                    {
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>UHID will be auto-generated</strong> on saving the patient record.
-                            Format: [Prefix]-[Year]-[Sequence] (e.g., PHY-2026-00001)
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-success">
-                            <i class="fas fa-id-card me-2"></i>
-                            <strong>UHID: @Model.UHID</strong>
-                        </div>
-                    }
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Patient Name <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.PatientName, new { @class = "form-control", placeholder = "Enter full name", required = "required" })
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Gender</label>
-                            @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female", "Other" }), new { @class = "form-select" })
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Age</label>
-                            @Html.TextBoxFor(m => m.Age, new { @class = "form-control", placeholder = "Age", type = "number" })
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Date of Birth</label>
-                            @Html.TextBoxFor(m => m.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Blood Group</label>
-                            @Html.DropDownListFor(m => m.BloodGroup, new SelectList(new[] { "", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-" }), new { @class = "form-select" })
-                        </div>
-                    </div>
+                <div class="col-md-3 mb-3">
+                    <label>Gender</label>
+                    <select asp-for="Gender" class="form-control">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>Age</label>
+                    <input asp-for="Age" class="form-control" type="number" />
                 </div>
             </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Contact Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Date of Birth</label>
+                    <input asp-for="DateOfBirth" class="form-control" type="date" />
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
-                            @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Enter mobile number", required = "required" })
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Alternate Mobile</label>
-                            @Html.TextBoxFor(m => m.AlternateMobile, new { @class = "form-control", placeholder = "Enter alternate mobile" })
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Enter email address", type = "email" })
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Registration Date</label>
-                            @Html.TextBoxFor(m => m.RegistrationDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", @readonly = "readonly" })
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Address</label>
-                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "2", placeholder = "Enter full address" })
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">City</label>
-                            @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "City" })
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">State</label>
-                            @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "State" })
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Pincode</label>
-                            @Html.TextBoxFor(m => m.Pincode, new { @class = "form-control", placeholder = "Pincode" })
-                        </div>
-                    </div>
+                <div class="col-md-6 mb-3">
+                    <label>Blood Group</label>
+                    <select asp-for="BloodGroup" class="form-control">
+                        <option value="">Select</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Medical Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Mobile Number *</label>
+                    <input asp-for="MobileNumber" class="form-control" required />
+                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Emergency Contact Name</label>
-                            @Html.TextBoxFor(m => m.EmergencyContactName, new { @class = "form-control", placeholder = "Emergency contact name" })
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Emergency Contact Number</label>
-                            @Html.TextBoxFor(m => m.EmergencyContactNumber, new { @class = "form-control", placeholder = "Emergency contact number" })
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Refer Doctor Name</label>
-                            @Html.TextBoxFor(m => m.ReferDoctorName, new { @class = "form-control", placeholder = "Refer doctor name (if any)" })
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <div class="form-check form-switch mt-2">
-                                @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", @id = "statusSwitch" })
-                                <label class="form-check-label" for="statusSwitch">Active Patient</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Medical History</label>
-                        @Html.TextAreaFor(m => m.MedicalHistory, new { @class = "form-control", rows = "3", placeholder = "Enter any relevant medical history" })
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Allergies</label>
-                        @Html.TextAreaFor(m => m.Allergies, new { @class = "form-control", rows = "2", placeholder = "Enter any known allergies" })
-                    </div>
+                <div class="col-md-6 mb-3">
+                    <label>Email</label>
+                    <input asp-for="Email" class="form-control" type="email" />
                 </div>
             </div>
 
-            <div class="mt-4 text-end">
-                <button type="submit" id="btnSubmit" class="btn btn-success btn-lg">
-                    <i class="fas fa-save me-2"></i>@(Model.IsEdit ? "Update Patient" : "Register Patient")
+            <div class="mb-3">
+                <label>Address</label>
+                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label>City</label>
+                    <input asp-for="City" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>State</label>
+                    <input asp-for="State" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>Pincode</label>
+                    <input asp-for="Pincode" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Emergency Contact Name</label>
+                    <input asp-for="EmergencyContactName" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Emergency Contact Number</label>
+                    <input asp-for="EmergencyContactNumber" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Medical History</label>
+                <textarea asp-for="MedicalHistory" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Allergies</label>
+                <textarea asp-for="Allergies" class="form-control" rows="2"></textarea>
+            </div>
+
+            <input type="hidden" asp-for="RegistrationDate" value="@DateTime.Now" />
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i>Register Patient
                 </button>
                 <a href="@Url.Action("Index", "Patient")" class="btn btn-secondary btn-lg ms-2">
-                    <i class="fas fa-times me-2"></i>Cancel
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
                 </a>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">
-                        <strong>UHID Format:</strong><br>
-                        Prefix-Year-Sequence<br>
-                        Example: PHY-2026-00001
-                    </p>
-                    <hr>
-                    <p class="text-muted small">
-                        <strong>Note:</strong> UHID prefix can be configured in Clinic Profile settings.
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
-}
+</form>

@@ -38,6 +38,18 @@ namespace PhysioClinicPro.Controllers
             return View(model);
         }
 
+        public IActionResult CreateSimple()
+        {
+            if (HttpContext.Session.GetInt32("UserId") == null)
+                return RedirectToAction("Login", "Account");
+
+            var model = new PatientViewModel
+            {
+                RegistrationDate = DateTime.Now
+            };
+            return View("CreateSimple", model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(PatientViewModel model)
