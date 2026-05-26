@@ -263,7 +263,7 @@
         if ($select.find('option').length <= 1) {
             $select.empty().append('<option value="">Select Service</option>');
             services.forEach(function(s) {
-                $select.append(`<option value="${s.Id}" data-rate="${s.DefaultRate}" data-gst="${s.GSTPercentage}">${s.ServiceCode} - ${s.ServiceName} (₹${s.DefaultRate})</option>`);
+                $select.append(`<option value="${s.Id}" data-rate="${s.DefaultRate || ""}" data-gst="${s.GSTPercentage || ""}">${s.ServiceCode || ""} - ${s.ServiceName || ""} (₹${s.DefaultRate || ""})</option>`);
             });
         }
     }
@@ -408,7 +408,7 @@
                 if (data.length === 1) {
                     selectPatient(data[0]);
                 } else if (data.length > 1) {
-                    var list = data.map(p => `<li class="list-group-item" style="cursor:pointer" onclick="selectPatient(${JSON.stringify(p).replace(/"/g, '&quot;')})">${p.Display}</li>`).join('');
+                    var list = data.map(p => `<li class="list-group-item" style="cursor:pointer" onclick="selectPatient(${JSON.stringify(p).replace(/"/g, '&quot;')})">${p.Display || ""}</li>`).join('');
                     $('#patientInfo').html(`<ul class="list-group">${list}</ul>`).show();
                 }
             });
@@ -418,7 +418,7 @@
     function selectPatient(patient) {
         $('#patientSearch').val(patient.Display).attr('readonly', 'readonly');
         $('#selectedPatientId').val(patient.Id);
-        $('#patientInfo').html(`<div class="alert alert-info"><strong>Selected Patient:</strong> ${patient.PatientName}<br><strong>UHID:</strong> ${patient.UHID}</div>`).show();
+        $('#patientInfo').html(`<div class="alert alert-info"><strong>Selected Patient:</strong> ${patient.PatientName || ""}<br><strong>UHID:</strong> ${patient.UHID || ""}</div>`).show();
     }
 </script>
 }

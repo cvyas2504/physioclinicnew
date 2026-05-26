@@ -184,16 +184,16 @@
 
                 tbody.append(`
                     <tr>
-                        <td><strong>${b.BillNumber}</strong></td>
-                        <td>${b.BillDate}</td>
+                        <td><strong>${b.BillNumber || ''}</strong></td>
+                        <td>${b.BillDate || ''}</td>
                         <td>${b.PatientName || 'N/A'}</td>
                         <td>${b.PatientUHID || 'N/A'}</td>
-                        <td>${b.TotalAmount.toLocaleString()}</td>
-                        <td>${b.DiscountAmount.toLocaleString()}</td>
-                        <td>${b.GSTAmount.toLocaleString()}</td>
-                        <td><strong>${b.NetAmount.toLocaleString()}</strong></td>
-                        <td>${b.PaidAmount.toLocaleString()}</td>
-                        <td class="text-danger">${b.DueAmount.toLocaleString()}</td>
+                        <td>${(b.TotalAmount || 0).toLocaleString()}</td>
+                        <td>${(b.DiscountAmount || 0).toLocaleString()}</td>
+                        <td>${(b.GSTAmount || 0).toLocaleString()}</td>
+                        <td><strong>${(b.NetAmount || 0).toLocaleString()}</strong></td>
+                        <td>${(b.PaidAmount || 0).toLocaleString()}</td>
+                        <td class="text-danger">${(b.DueAmount || 0).toLocaleString()}</td>
                         <td>${statusBadge}</td>
                         <td>${actionBtns}</td>
                     </tr>
@@ -207,13 +207,13 @@
             var detailsHtml = `
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>Bill Number:</strong> ${data.BillNumber}<br>
-                        <strong>Patient:</strong> ${data.PatientName} (${data.PatientUHID})<br>
-                        <strong>Date:</strong> ${new Date(data.BillDate).toLocaleDateString()}
+                        <strong>Bill Number:</strong> ${data.BillNumber || ""}<br>
+                        <strong>Patient:</strong> ${data.PatientName || "N/A"} (${data.PatientUHID || ""})<br>
+                        <strong>Date:</strong> ${data.BillDate ? new Date(data.BillDate).toLocaleDateString() : ""}
                     </div>
                     <div class="col-md-6 text-end">
-                        <strong>Status:</strong> <span class="badge ${data.Status === 'Active' ? 'bg-success' : 'bg-danger'}">${data.Status}</span><br>
-                        <strong>Net Amount:</strong> ₹${data.NetAmount.toLocaleString()}
+                        <strong>Status:</strong> <span class="badge ${data.Status === 'Active' ? 'bg-success' : 'bg-danger'}">${data.Status || ""}</span><br>
+                        <strong>Net Amount:</strong> ₹${(data.NetAmount || 0).toLocaleString()}
                     </div>
                 </div>
                 <hr>
@@ -235,15 +235,15 @@
             
             data.BillDetails.forEach(function(d) {
                 detailsHtml += `<tr>
-                    <td>${d.ServiceName}</td>
-                    <td>${d.Quantity}</td>
-                    <td>${d.Rate.toLocaleString()}</td>
-                    <td>${d.Amount.toLocaleString()}</td>
-                    <td>${d.DiscountPercentage}%</td>
-                    <td>${d.DiscountAmount.toLocaleString()}</td>
-                    <td>${d.GSTPercentage}%</td>
-                    <td>${d.GSTAmount.toLocaleString()}</td>
-                    <td><strong>${d.NetAmount.toLocaleString()}</strong></td>
+                    <td>${d.ServiceName || ""}</td>
+                    <td>${d.Quantity || ""}</td>
+                    <td>${(d.Rate || 0).toLocaleString()}</td>
+                    <td>${(d.Amount || 0).toLocaleString()}</td>
+                    <td>${d.DiscountPercentage || ""}%</td>
+                    <td>${(d.DiscountAmount || 0).toLocaleString()}</td>
+                    <td>${d.GSTPercentage || ""}%</td>
+                    <td>${(d.GSTAmount || 0).toLocaleString()}</td>
+                    <td><strong>${(d.NetAmount || 0).toLocaleString()}</strong></td>
                 </tr>`;
             });
 
@@ -254,18 +254,18 @@
                         <ul>`;
             
             data.BillPayments.forEach(function(p) {
-                detailsHtml += `<li>${p.PaymentMode}: ₹${p.Amount.toLocaleString()}${p.PaymentReference ? ' (' + p.PaymentReference + ')' : ''}</li>`;
+                detailsHtml += `<li>${p.PaymentMode || ""}: ₹${(p.Amount || 0).toLocaleString()}${p.PaymentReference ? ' (' + p.PaymentReference + ')' : ''}</li>`;
             });
 
             detailsHtml += `</ul>
                     </div>
                     <div class="col-md-6 text-end">
-                        <p>Total: ₹${data.TotalAmount.toLocaleString()}</p>
-                        <p>Discount: ₹${data.DiscountAmount.toLocaleString()}</p>
-                        <p>GST: ₹${data.GSTAmount.toLocaleString()}</p>
-                        <h4>Net Amount: ₹${data.NetAmount.toLocaleString()}</h4>
-                        <p>Paid: ₹${data.PaidAmount.toLocaleString()}</p>
-                        <p class="text-danger">Due: ₹${data.DueAmount.toLocaleString()}</p>
+                        <p>Total: ₹${(data.TotalAmount || 0).toLocaleString()}</p>
+                        <p>Discount: ₹${(data.DiscountAmount || 0).toLocaleString()}</p>
+                        <p>GST: ₹${(data.GSTAmount || 0).toLocaleString()}</p>
+                        <h4>Net Amount: ₹${(data.NetAmount || 0).toLocaleString()}</h4>
+                        <p>Paid: ₹${(data.PaidAmount || 0).toLocaleString()}</p>
+                        <p class="text-danger">Due: ₹${(data.DueAmount || 0).toLocaleString()}</p>
                     </div>
                 </div>`;
 

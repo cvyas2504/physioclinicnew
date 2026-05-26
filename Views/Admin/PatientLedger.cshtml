@@ -84,7 +84,7 @@
         $.get('@Url.Action("GetPatientsForLedger", "Report")', function(data) {
             $('#patientSelect').empty().append('<option value="">All Patients</option>');
             data.forEach(function(p) {
-                $('#patientSelect').append(`<option value="${p.Id}">${p.UHID} - ${p.PatientName}</option>`);
+                $('#patientSelect').append(`<option value="${p.Id}">${p.UHID || ""} - ${p.PatientName || ""}</option>`);
             });
         });
     }
@@ -124,14 +124,14 @@
 
                 var typeBadge = getTypeBadge(l.TransactionType);
                 tbody.append(`<tr>
-                    <td>${l.TransactionDate}</td>
-                    <td>${l.PatientName}</td>
-                    <td>${l.PatientUHID}</td>
+                    <td>${l.TransactionDate || ""}</td>
+                    <td>${l.PatientName || ""}</td>
+                    <td>${l.PatientUHID || ""}</td>
                     <td>${typeBadge}</td>
                     <td>${l.ReferenceNumber || '-'}</td>
                     <td class="text-end">${l.Debit > 0 ? l.Debit.toLocaleString() : '-'}</td>
                     <td class="text-end">${l.Credit > 0 ? l.Credit.toLocaleString() : '-'}</td>
-                    <td class="text-end fw-bold ${l.Balance >= 0 ? 'text-success' : 'text-danger'}">${l.Balance.toLocaleString()}</td>
+                    <td class="text-end fw-bold ${l.Balance >= 0 ? 'text-success' : 'text-danger'}">${(l.Balance || 0).toLocaleString()}</td>
                     <td>${l.Narration || '-'}</td>
                 </tr>`);
             });

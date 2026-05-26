@@ -201,7 +201,7 @@
         $.get('@Url.Action("GetPatientsForLedger", "Report")', function(data) {
             $('#patientFilter').empty().append('<option value="">All Patients</option>');
             data.forEach(function(p) {
-                $('#patientFilter').append(`<option value="${p.Id}">${p.UHID} - ${p.PatientName}</option>`);
+                $('#patientFilter').append(`<option value="${p.Id}">${p.UHID || ""} - ${p.PatientName || ""}</option>`);
             });
         });
     }
@@ -248,14 +248,14 @@
         data.forEach(function(p) {
             var statusBadge = p.IsActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>';
             tbody.append(`<tr>
-                <td><strong>${p.UHID}</strong></td>
-                <td>${p.PatientName}</td>
-                <td>${p.Gender}</td>
+                <td><strong>${p.UHID || ""}</strong></td>
+                <td>${p.PatientName || ""}</td>
+                <td>${p.Gender || ""}</td>
                 <td>${p.Age || '-'}</td>
                 <td>${p.MobileNumber || '-'}</td>
                 <td>${p.Email || '-'}</td>
                 <td>${p.City || '-'}</td>
-                <td>${p.RegistrationDate}</td>
+                <td>${p.RegistrationDate || ""}</td>
                 <td>${statusBadge}</td>
             </tr>`);
         });
@@ -283,16 +283,16 @@
         data.forEach(function(b) {
             var statusBadge = b.Status === 'Active' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Cancelled</span>';
             tbody.append(`<tr>
-                <td><strong>${b.BillNumber}</strong></td>
-                <td>${b.BillDate}</td>
-                <td>${b.PatientName}</td>
-                <td>${b.PatientUHID}</td>
-                <td>${b.TotalAmount.toLocaleString()}</td>
-                <td>${b.DiscountAmount.toLocaleString()}</td>
-                <td>${b.GSTAmount.toLocaleString()}</td>
-                <td><strong>${b.NetAmount.toLocaleString()}</strong></td>
-                <td>${b.PaidAmount.toLocaleString()}</td>
-                <td class="text-danger">${b.DueAmount.toLocaleString()}</td>
+                <td><strong>${b.BillNumber || ""}</strong></td>
+                <td>${b.BillDate || ""}</td>
+                <td>${b.PatientName || ""}</td>
+                <td>${b.PatientUHID || ""}</td>
+                <td>${(b.TotalAmount || 0).toLocaleString()}</td>
+                <td>${(b.DiscountAmount || 0).toLocaleString()}</td>
+                <td>${(b.GSTAmount || 0).toLocaleString()}</td>
+                <td><strong>${(b.NetAmount || 0).toLocaleString()}</strong></td>
+                <td>${(b.PaidAmount || 0).toLocaleString()}</td>
+                <td class="text-danger">${(b.DueAmount || 0).toLocaleString()}</td>
                 <td>${statusBadge}</td>
             </tr>`);
             totalNet += b.NetAmount;
@@ -321,14 +321,14 @@
 
         data.forEach(function(l) {
             tbody.append(`<tr>
-                <td>${l.TransactionDate}</td>
-                <td>${l.PatientName}</td>
-                <td>${l.PatientUHID}</td>
-                <td><span class="badge bg-info">${l.TransactionType}</span></td>
+                <td>${l.TransactionDate || ""}</td>
+                <td>${l.PatientName || ""}</td>
+                <td>${l.PatientUHID || ""}</td>
+                <td><span class="badge bg-info">${l.TransactionType || ""}</span></td>
                 <td>${l.ReferenceNumber || '-'}</td>
                 <td>${l.Debit > 0 ? '₹' + l.Debit.toLocaleString() : '-'}</td>
                 <td>${l.Credit > 0 ? '₹' + l.Credit.toLocaleString() : '-'}</td>
-                <td><strong>₹${l.Balance.toLocaleString()}</strong></td>
+                <td><strong>₹${(l.Balance || 0).toLocaleString()}</strong></td>
                 <td>${l.Narration || '-'}</td>
             </tr>`);
         });
@@ -354,9 +354,9 @@
         if (data.DailySummary && data.DailySummary.length > 0) {
             data.DailySummary.forEach(function(d) {
                 tbody.append(`<tr>
-                    <td>${d.Date}</td>
-                    <td><strong>₹${d.TotalCollection.toLocaleString()}</strong></td>
-                    <td>${d.TransactionCount}</td>
+                    <td>${d.Date || ""}</td>
+                    <td><strong>₹${(d.TotalCollection || 0).toLocaleString()}</strong></td>
+                    <td>${d.TransactionCount || ""}</td>
                 </tr>`);
             });
         } else {

@@ -56,19 +56,20 @@
 
     function loadUsers() {
         $.get('@Url.Action("GetUsers", "Admin")', function(data) {
+            console.log('Users data:', data);
             var tbody = $('#userTable tbody');
             tbody.empty();
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No users found</td></tr>');
                 return;
             }
 
             var search = $('#searchInput').val().toLowerCase();
             data = data.filter(function(u) {
-                return u.Username.toLowerCase().includes(search) ||
-                       u.FullName.toLowerCase().includes(search) ||
-                       u.Role.toLowerCase().includes(search);
+                return (u.Username || '').toLowerCase().includes(search) ||
+                       (u.FullName || '').toLowerCase().includes(search) ||
+                       (u.Role || '').toLowerCase().includes(search);
             });
 
             data.forEach(function(u) {
@@ -79,13 +80,13 @@
                 
                 tbody.append(`
                     <tr>
-                        <td><strong>${u.Username}</strong></td>
-                        <td>${u.FullName}</td>
-                        <td><span class="badge ${roleBadge}">${u.Role}</span></td>
+                        <td><strong>${u.Username || ''}</strong></td>
+                        <td>${u.FullName || ''}</td>
+                        <td><span class="badge ${roleBadge}">${u.Role || ''}</span></td>
                         <td>${u.MobileNumber || '-'}</td>
                         <td>${u.Email || '-'}</td>
                         <td>${statusBadge}</td>
-                        <td>${u.CreatedDate}</td>
+                        <td>${u.CreatedDate || ''}</td>
                         <td>
                             <a href="@Url.Action("EditUser", "Admin")/${u.Id}" class="btn btn-sm btn-primary" title="Edit">
                                 <i class="fas fa-edit"></i>
@@ -98,6 +99,8 @@
                     </tr>
                 `);
             });
+        }).fail(function(err) {
+            console.log('Error loading users:', err);
         });
     }
 </script>
