@@ -70,12 +70,12 @@ namespace PhysioClinicPro.Controllers
                 var prefix = clinic?.UHIDPrefix ?? "PHY";
                 var year = DateTime.Now.Year;
                 var lastPatient = _context.Patients
-                    .Where(p => p.UHID.StartsWith($"{prefix}-{year}"))
+                    .Where(p => p.UHID != null && p.UHID.StartsWith($"{prefix}-{year}"))
                     .OrderByDescending(p => p.UHID)
                     .FirstOrDefault();
 
                 int nextNumber = 1;
-                if (lastPatient != null)
+                if (lastPatient != null && lastPatient.UHID != null)
                 {
                     var lastNumber = lastPatient.UHID.Split('-').LastOrDefault();
                     if (int.TryParse(lastNumber, out int num))
@@ -104,7 +104,7 @@ namespace PhysioClinicPro.Controllers
                     ReferDoctorName = model.ReferDoctorName,
                     MedicalHistory = model.MedicalHistory,
                     Allergies = model.Allergies,
-                    RegistrationDate = model.RegistrationDate,
+                    RegistrationDate = model.RegistrationDate ?? DateTime.Now,
                     IsActive = true
                 };
 
@@ -116,7 +116,7 @@ namespace PhysioClinicPro.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Error saving patient: " + ex.Message;
+                TempData["Error"] = "Error saving patient: " + (ex.InnerException?.Message ?? ex.Message);
                 return View(model);
             }
         }
@@ -205,7 +205,7 @@ namespace PhysioClinicPro.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Error updating patient: " + ex.Message;
+                TempData["Error"] = "Error updating patient: " + (ex.InnerException?.Message ?? ex.Message);
                 model.IsEdit = true;
                 return View("Create", model);
             }

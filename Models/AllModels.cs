@@ -8,7 +8,6 @@ namespace PhysioClinicPro.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [MaxLength(200)]
         public string ClinicName { get; set; } = "PhysioClinic Pro";
 
@@ -54,19 +53,15 @@ namespace PhysioClinicPro.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? Username { get; set; }
 
-        [Required]
         [MaxLength(255)]
         public string? Password { get; set; }
 
-        [Required]
         [MaxLength(100)]
         public string? FullName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? Role { get; set; }
 
@@ -87,14 +82,12 @@ namespace PhysioClinicPro.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? UHID { get; set; }
 
         [MaxLength(200)]
         public string? PhotoPath { get; set; }
 
-        [Required]
         [MaxLength(200)]
         public string? PatientName { get; set; }
 
@@ -115,13 +108,13 @@ namespace PhysioClinicPro.Models
         public string? Email { get; set; }
 
         [MaxLength(500)]
-        public string Address { get; set; } = "";
+        public string? Address { get; set; }
 
         [MaxLength(100)]
-        public string City { get; set; } = "";
+        public string? City { get; set; }
 
         [MaxLength(100)]
-        public string State { get; set; } = "";
+        public string? State { get; set; }
 
         [MaxLength(10)]
         public string? Pincode { get; set; }
@@ -150,7 +143,7 @@ namespace PhysioClinicPro.Models
         public string? SearchUHID => $"UHID: {UHID}";
 
         [NotMapped]
-        public string? DisplayName => $"{UHID} - {PatientName}";
+        public string? DisplayName => $"{UHID ?? ""} - {PatientName ?? ""}";
     }
 
     public class Service
@@ -158,15 +151,12 @@ namespace PhysioClinicPro.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [MaxLength(20)]
         public string? ServiceCode { get; set; }
 
-        [Required]
         [MaxLength(200)]
         public string? ServiceName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? Category { get; set; }
 
@@ -192,7 +182,6 @@ namespace PhysioClinicPro.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? BillNumber { get; set; }
 
@@ -288,7 +277,6 @@ namespace PhysioClinicPro.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; } = 0;
 
-        [Required]
         [MaxLength(50)]
         public string? PaymentMode { get; set; }
 
@@ -315,7 +303,6 @@ namespace PhysioClinicPro.Models
 
         public DateTime TransactionDate { get; set; } = DateTime.Now;
 
-        [Required]
         [MaxLength(50)]
         public string? TransactionType { get; set; }
 

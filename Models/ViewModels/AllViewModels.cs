@@ -96,7 +96,7 @@ namespace PhysioClinicPro.Models.ViewModels
         public string? MedicalHistory { get; set; }
         public string? Allergies { get; set; }
 
-        public DateTime RegistrationDate { get; set; }
+        public DateTime RegistrationDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
         public bool IsEdit { get; set; }
     }
