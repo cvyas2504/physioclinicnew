@@ -56,25 +56,26 @@ namespace PhysioClinicPro.Controllers
 
             var patients = query
                 .OrderByDescending(p => p.RegistrationDate)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.UHID,
-                    p.PatientName,
-                    p.Gender,
-                    p.Age,
-                    p.MobileNumber,
-                    p.Email,
-                    p.Address,
-                    p.City,
-                    p.State,
-                    RegistrationDate = p.RegistrationDate.ToString("dd-MMM-yyyy"),
-                    p.IsActive,
-                    RegistrationType = p.RegistrationDate.Date == DateTime.Today ? "New" : "Revisit"
-                })
                 .ToList();
 
-            return Json(patients);
+            var result = patients.Select(p => new
+            {
+                p.Id,
+                UHID = p.UHID ?? "",
+                PatientName = p.PatientName ?? "",
+                Gender = p.Gender ?? "",
+                Age = p.Age ?? 0,
+                MobileNumber = p.MobileNumber ?? "",
+                Email = p.Email ?? "",
+                Address = p.Address ?? "",
+                City = p.City ?? "",
+                State = p.State ?? "",
+                RegistrationDate = p.RegistrationDate.ToString("dd-MMM-yyyy"),
+                p.IsActive,
+                RegistrationType = p.RegistrationDate.Date == DateTime.Today ? "New" : "Revisit"
+            }).ToList();
+
+            return Json(result);
         }
 
         [HttpGet]
@@ -115,18 +116,18 @@ namespace PhysioClinicPro.Controllers
             var result = bills.Select(b => new
             {
                 b.Id,
-                b.BillNumber,
+                BillNumber = b.BillNumber ?? "",
                 BillDate = b.BillDate.ToString("dd-MMM-yyyy"),
-                PatientName = b.Patient != null ? b.Patient.PatientName : "N/A",
-                PatientUHID = b.Patient != null ? b.Patient.UHID : "N/A",
+                PatientName = b.Patient?.PatientName ?? "N/A",
+                PatientUHID = b.Patient?.UHID ?? "N/A",
                 b.TotalAmount,
                 b.DiscountAmount,
                 b.GSTAmount,
                 b.NetAmount,
                 b.PaidAmount,
                 b.DueAmount,
-                PaymentModes = string.Join(", ", b.BillPayments.Select(p => p.PaymentMode).Distinct()),
-                b.Status
+                PaymentModes = string.Join(", ", b.BillPayments.Select(p => p.PaymentMode ?? "").Distinct()),
+                Status = b.Status ?? "Active"
             }).ToList();
 
             return Json(result);
@@ -161,23 +162,24 @@ namespace PhysioClinicPro.Controllers
                 .OrderBy(l => l.PatientId)
                 .ThenByDescending(l => l.TransactionDate)
                 .ThenByDescending(l => l.Id)
-                .Select(l => new
-                {
-                    l.Id,
-                    PatientId = l.PatientId,
-                    PatientName = l.Patient != null ? l.Patient.PatientName : "N/A",
-                    PatientUHID = l.Patient != null ? l.Patient.UHID : "N/A",
-                    TransactionDate = l.TransactionDate.ToString("dd-MMM-yyyy HH:mm"),
-                    l.TransactionType,
-                    l.ReferenceNumber,
-                    l.Debit,
-                    l.Credit,
-                    l.Balance,
-                    l.Narration
-                })
                 .ToList();
 
-            return Json(ledger);
+            var result = ledger.Select(l => new
+            {
+                l.Id,
+                PatientId = l.PatientId,
+                PatientName = l.Patient?.PatientName ?? "N/A",
+                PatientUHID = l.Patient?.UHID ?? "N/A",
+                TransactionDate = l.TransactionDate.ToString("dd-MMM-yyyy HH:mm"),
+                TransactionType = l.TransactionType ?? "",
+                ReferenceNumber = l.ReferenceNumber ?? "",
+                l.Debit,
+                l.Credit,
+                l.Balance,
+                Narration = l.Narration ?? ""
+            }).ToList();
+
+            return Json(result);
         }
 
         [HttpGet]
@@ -211,7 +213,7 @@ namespace PhysioClinicPro.Controllers
 
             // By Payment Mode
             var byPaymentMode = payments
-                .GroupBy(p => p.PaymentMode)
+                .GroupBy(p => p.PaymentMode ?? "")
                 .Select(g => new
                 {
                     PaymentMode = g.Key,
@@ -264,16 +266,17 @@ namespace PhysioClinicPro.Controllers
 
             var patients = _context.Patients
                 .Where(p => p.IsActive)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.UHID,
-                    p.PatientName,
-                    Display = $"{p.UHID} - {p.PatientName}"
-                })
                 .ToList();
 
-            return Json(patients);
+            var result = patients.Select(p => new
+            {
+                p.Id,
+                UHID = p.UHID ?? "",
+                PatientName = p.PatientName ?? "",
+                Display = $"{p.UHID ?? ""} - {p.PatientName ?? ""}"
+            }).ToList();
+
+            return Json(result);
         }
     }
 }

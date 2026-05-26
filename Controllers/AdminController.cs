@@ -160,20 +160,21 @@ namespace PhysioClinicPro.Controllers
 
             var users = _context.Users
                 .OrderBy(u => u.FullName)
-                .Select(u => new
-                {
-                    u.Id,
-                    u.Username,
-                    u.FullName,
-                    u.Role,
-                    u.MobileNumber,
-                    u.Email,
-                    u.IsActive,
-                    CreatedDate = u.CreatedDate.ToString("dd-MMM-yyyy")
-                })
                 .ToList();
 
-            return Json(users);
+            var result = users.Select(u => new
+            {
+                u.Id,
+                Username = u.Username ?? "",
+                FullName = u.FullName ?? "",
+                Role = u.Role ?? "",
+                MobileNumber = u.MobileNumber ?? "",
+                Email = u.Email ?? "",
+                u.IsActive,
+                CreatedDate = u.CreatedDate.ToString("dd-MMM-yyyy")
+            }).ToList();
+
+            return Json(result);
         }
 
         public IActionResult DeleteUser(int id)
