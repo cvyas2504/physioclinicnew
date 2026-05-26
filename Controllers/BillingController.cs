@@ -590,8 +590,8 @@ namespace PhysioClinicPro.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(b => b.BillNumber.Contains(search) || 
-                    (b.Patient != null && b.Patient.PatientName.Contains(search)));
+                query = query.Where(b => (b.BillNumber != null && b.BillNumber.Contains(search)) || 
+                    (b.Patient != null && b.Patient.PatientName != null && b.Patient.PatientName.Contains(search)));
             }
 
             if (status != "all")
@@ -612,24 +612,25 @@ namespace PhysioClinicPro.Controllers
             var bills = query
                 .OrderByDescending(b => b.BillDate)
                 .ThenByDescending(b => b.Id)
-                .Select(b => new
-                {
-                    b.Id,
-                    b.BillNumber,
-                    BillDate = b.BillDate.ToString("dd-MMM-yyyy"),
-                    PatientName = b.Patient != null ? b.Patient.PatientName : "N/A",
-                    PatientUHID = b.Patient != null ? b.Patient.UHID : "N/A",
-                    b.TotalAmount,
-                    b.DiscountAmount,
-                    b.GSTAmount,
-                    b.NetAmount,
-                    b.PaidAmount,
-                    b.DueAmount,
-                    b.Status
-                })
                 .ToList();
 
-            return Json(bills);
+            var result = bills.Select(b => new
+            {
+                b.Id,
+                BillNumber = b.BillNumber ?? "",
+                BillDate = b.BillDate.ToString("dd-MMM-yyyy"),
+                PatientName = b.Patient?.PatientName ?? "N/A",
+                PatientUHID = b.Patient?.UHID ?? "N/A",
+                b.TotalAmount,
+                b.DiscountAmount,
+                b.GSTAmount,
+                b.NetAmount,
+                b.PaidAmount,
+                b.DueAmount,
+                Status = b.Status ?? "Active"
+            }).ToList();
+
+            return Json(result);
         }
 
         public IActionResult GetBill(int id)
@@ -650,24 +651,24 @@ namespace PhysioClinicPro.Controllers
             return Json(new
             {
                 bill.Id,
-                bill.BillNumber,
+                BillNumber = bill.BillNumber ?? "",
                 bill.BillDate,
                 PatientId = bill.PatientId,
-                PatientName = bill.Patient?.PatientName,
-                PatientUHID = bill.Patient?.UHID,
+                PatientName = bill.Patient?.PatientName ?? "",
+                PatientUHID = bill.Patient?.UHID ?? "",
                 bill.TotalAmount,
                 bill.DiscountAmount,
                 bill.GSTAmount,
                 bill.NetAmount,
                 bill.PaidAmount,
                 bill.DueAmount,
-                bill.Status,
-                bill.Notes,
+                Status = bill.Status ?? "Active",
+                Notes = bill.Notes ?? "",
                 BillDetails = bill.BillDetails.Select(bd => new
                 {
                     bd.Id,
                     bd.ServiceId,
-                    ServiceName = bd.Service?.ServiceName,
+                    ServiceName = bd.Service?.ServiceName ?? "",
                     bd.Quantity,
                     bd.Rate,
                     bd.Amount,
@@ -681,8 +682,8 @@ namespace PhysioClinicPro.Controllers
                 {
                     bp.Id,
                     bp.Amount,
-                    bp.PaymentMode,
-                    bp.PaymentReference
+                    PaymentMode = bp.PaymentMode ?? "Cash",
+                    PaymentReference = bp.PaymentReference ?? ""
                 })
             });
         }

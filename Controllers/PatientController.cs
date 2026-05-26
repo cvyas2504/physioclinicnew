@@ -238,16 +238,16 @@ namespace PhysioClinicPro.Controllers
 
             var patients = _context.Patients
                 .Where(p => p.IsActive && 
-                    (p.UHID.Contains(term) || 
-                     p.PatientName.Contains(term) || 
-                     p.MobileNumber.Contains(term)))
+                    ((p.UHID != null && p.UHID.Contains(term)) || 
+                     (p.PatientName != null && p.PatientName.Contains(term)) || 
+                     (p.MobileNumber != null && p.MobileNumber.Contains(term))))
                 .Select(p => new
                 {
                     p.Id,
-                    p.UHID,
-                    p.PatientName,
-                    p.MobileNumber,
-                    Display = $"{p.UHID} - {p.PatientName}"
+                    UHID = p.UHID ?? "",
+                    PatientName = p.PatientName ?? "",
+                    MobileNumber = p.MobileNumber ?? "",
+                    Display = $"{p.UHID ?? ""} - {p.PatientName ?? ""}"
                 })
                 .Take(20)
                 .ToList();
@@ -267,12 +267,12 @@ namespace PhysioClinicPro.Controllers
             return Json(new
             {
                 patient.Id,
-                patient.UHID,
-                patient.PatientName,
-                patient.Gender,
-                patient.Age,
-                patient.MobileNumber,
-                patient.Email,
+                UHID = patient.UHID ?? "",
+                PatientName = patient.PatientName ?? "",
+                Gender = patient.Gender ?? "",
+                Age = patient.Age ?? 0,
+                MobileNumber = patient.MobileNumber ?? "",
+                Email = patient.Email ?? "",
                 patient.Address
             });
         }
