@@ -66,10 +66,11 @@
         var category = $('#categoryFilter').val();
 
         $.get('@Url.Action("GetAll", "Service")', { search: search, category: category }, function(data) {
+            console.log('Services data:', data);
             var tbody = $('#serviceTable tbody');
             tbody.empty();
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No services found</td></tr>');
                 return;
             }
@@ -81,12 +82,12 @@
                 
                 tbody.append(`
                     <tr>
-                        <td><strong>${s.ServiceCode}</strong></td>
-                        <td>${s.ServiceName}</td>
-                        <td><span class="badge bg-info">${s.Category}</span></td>
-                        <td>₹${s.DefaultRate.toLocaleString()}</td>
-                        <td>${s.DurationMinutes}</td>
-                        <td>${s.GSTPercentage}%</td>
+                        <td><strong>${s.ServiceCode || ''}</strong></td>
+                        <td>${s.ServiceName || ''}</td>
+                        <td><span class="badge bg-info">${s.Category || ''}</span></td>
+                        <td>₹${(s.DefaultRate || 0).toLocaleString()}</td>
+                        <td>${s.DurationMinutes || 0}</td>
+                        <td>${s.GSTPercentage || 0}%</td>
                         <td>${statusBadge}</td>
                         <td>
                             <a href="@Url.Action("Edit", "Service")/${s.Id}" class="btn btn-sm btn-primary" title="Edit">
@@ -99,6 +100,8 @@
                     </tr>
                 `);
             });
+        }).fail(function(err) {
+            console.log('Error loading services:', err);
         });
     }
 </script>

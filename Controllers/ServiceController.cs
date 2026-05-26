@@ -47,9 +47,9 @@ namespace PhysioClinicPro.Controllers
 
             try
             {
-                var lastService = _context.Services.OrderByDescending(s => s.ServiceCode).FirstOrDefault();
+                var lastService = _context.Services.OrderByDescending(s => s.Id).FirstOrDefault();
                 int nextNumber = 1;
-                if (lastService != null)
+                if (lastService != null && lastService.ServiceCode != null)
                 {
                     var numStr = lastService.ServiceCode.Replace("SRV", "");
                     if (int.TryParse(numStr, out int num))
@@ -60,11 +60,11 @@ namespace PhysioClinicPro.Controllers
                 {
                     ServiceCode = $"SRV{nextNumber:D3}",
                     ServiceName = model.ServiceName,
-                    Category = model.Category,
+                    Category = model.Category ?? "Therapy",
                     Description = model.Description,
                     DefaultRate = model.DefaultRate,
-                    DurationMinutes = model.DurationMinutes,
-                    GSTPercentage = model.GSTPercentage,
+                    DurationMinutes = model.DurationMinutes > 0 ? model.DurationMinutes : 30,
+                    GSTPercentage = model.GSTPercentage > 0 ? model.GSTPercentage : 18,
                     IsActive = true,
                     CreatedDate = DateTime.Now
                 };
@@ -96,7 +96,7 @@ namespace PhysioClinicPro.Controllers
                 Id = service.Id,
                 ServiceCode = service.ServiceCode,
                 ServiceName = service.ServiceName,
-                Category = service.Category,
+                Category = service.Category ?? "Therapy",
                 Description = service.Description,
                 DefaultRate = service.DefaultRate,
                 DurationMinutes = service.DurationMinutes,
@@ -200,24 +200,26 @@ namespace PhysioClinicPro.Controllers
                 .Where(s => s.IsActive)
                 .OrderBy(s => s.Category)
                 .ThenBy(s => s.ServiceName)
-                .Select(s => new
-                {
-                    s.Id,
-                    s.ServiceCode,
-                    s.ServiceName,
-                    s.Category,
-                    s.DefaultRate,
-                    s.GSTPercentage,
-                    s.DurationMinutes
-                })
                 .ToList();
 
-            return Json(services);
+            var result = services.Select(s => new
+            {
+                s.Id,
+                ServiceCode = s.ServiceCode ?? "",
+                ServiceName = s.ServiceName ?? "",
+                Category = s.Category ?? "",
+                s.DefaultRate,
+                s.GSTPercentage,
+                s.DurationMinutes
+            }).ToList();
+
+            return Json(result);
         }
 
         public IActionResult GetCategories()
         {
             var categories = _context.Services
+                .Where(s => s.Category != null)
                 .Select(s => s.Category)
                 .Distinct()
                 .OrderBy(c => c)
