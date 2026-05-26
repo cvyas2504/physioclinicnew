@@ -56,25 +56,25 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(50)]
-        public string Username { get; set; } = "";
+        public string? Username { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string Password { get; set; } = "";
+        public string? Password { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string FullName { get; set; } = "";
+        public string? FullName { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Role { get; set; } = "Receptionist";
+        public string? Role { get; set; }
 
         [MaxLength(20)]
-        public string MobileNumber { get; set; } = "";
+        public string? MobileNumber { get; set; }
 
         [MaxLength(100)]
-        public string Email { get; set; } = "";
+        public string? Email { get; set; }
 
         public bool IsActive { get; set; } = true;
 
@@ -160,15 +160,15 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(20)]
-        public string ServiceCode { get; set; } = "";
+        public string? ServiceCode { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string ServiceName { get; set; } = "";
+        public string? ServiceName { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Category { get; set; } = "Therapy";
+        public string? Category { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }
@@ -194,7 +194,7 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(50)]
-        public string BillNumber { get; set; } = "";
+        public string? BillNumber { get; set; }
 
         public DateTime BillDate { get; set; } = DateTime.Now;
 
@@ -225,7 +225,7 @@ namespace PhysioClinicPro.Models
         public string? Notes { get; set; }
 
         [MaxLength(50)]
-        public string Status { get; set; } = "Active";
+        public string? Status { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public int CreatedBy { get; set; }
@@ -290,7 +290,7 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(50)]
-        public string PaymentMode { get; set; } = "Cash";
+        public string? PaymentMode { get; set; }
 
         [MaxLength(100)]
         public string? PaymentReference { get; set; }
@@ -317,7 +317,7 @@ namespace PhysioClinicPro.Models
 
         [Required]
         [MaxLength(50)]
-        public string TransactionType { get; set; } = "";
+        public string? TransactionType { get; set; }
 
         [MaxLength(50)]
         public string? ReferenceNumber { get; set; }
@@ -345,7 +345,7 @@ namespace PhysioClinicPro.Models
         public int BillId { get; set; }
 
         [MaxLength(100)]
-        public string ModificationType { get; set; } = "";
+        public string? ModificationType { get; set; }
 
         [MaxLength(500)]
         public string? OldValues { get; set; }
@@ -369,7 +369,7 @@ namespace PhysioClinicPro.Models
         public int BillId { get; set; }
 
         [MaxLength(500)]
-        public string Reason { get; set; } = "";
+        public string? Reason { get; set; }
 
         public int CancelledBy { get; set; }
 
@@ -387,10 +387,10 @@ namespace PhysioClinicPro.Models
         public decimal RefundAmount { get; set; } = 0;
 
         [MaxLength(50)]
-        public string RefundMode { get; set; } = "Cash";
+        public string? RefundMode { get; set; }
 
         [MaxLength(500)]
-        public string Reason { get; set; } = "";
+        public string? Reason { get; set; }
 
         public int RefundedBy { get; set; }
 
@@ -411,7 +411,7 @@ namespace PhysioClinicPro.Models
         public decimal DiscountAmount { get; set; } = 0;
 
         [MaxLength(500)]
-        public string Reason { get; set; } = "";
+        public string? Reason { get; set; }
 
         public int DiscountedBy { get; set; }
 

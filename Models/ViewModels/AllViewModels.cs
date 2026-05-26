@@ -104,15 +104,15 @@ namespace PhysioClinicPro.Models.ViewModels
     public class ServiceViewModel
     {
         public int Id { get; set; }
-        public string ServiceCode { get; set; } = "";
+        public string? ServiceCode { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string ServiceName { get; set; } = "";
+        public string? ServiceName { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string Category { get; set; } = "Therapy";
+        public string? Category { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }
@@ -132,7 +132,7 @@ namespace PhysioClinicPro.Models.ViewModels
     public class BillViewModel
     {
         public int Id { get; set; }
-        public string BillNumber { get; set; } = "";
+        public string? BillNumber { get; set; }
         public DateTime BillDate { get; set; } = DateTime.Now;
         public int PatientId { get; set; }
         public string? PatientName { get; set; }
@@ -144,7 +144,7 @@ namespace PhysioClinicPro.Models.ViewModels
         public decimal PaidAmount { get; set; } = 0;
         public decimal DueAmount { get; set; } = 0;
         public string? Notes { get; set; }
-        public string Status { get; set; } = "Active";
+        public string? Status { get; set; }
         public bool IsEdit { get; set; }
 
         public List<BillDetailViewModel> BillDetails { get; set; } = new();
@@ -172,7 +172,7 @@ namespace PhysioClinicPro.Models.ViewModels
         public int Id { get; set; }
         public int BillId { get; set; }
         public decimal Amount { get; set; } = 0;
-        public string PaymentMode { get; set; } = "Cash";
+        public string? PaymentMode { get; set; }
         public string? PaymentReference { get; set; }
         public string? PaymentNotes { get; set; }
         public DateTime PaymentDate { get; set; } = DateTime.Now;
@@ -181,7 +181,7 @@ namespace PhysioClinicPro.Models.ViewModels
     public class BillOperationViewModel
     {
         public int BillId { get; set; }
-        public string BillNumber { get; set; } = "";
+        public string? BillNumber { get; set; }
         public decimal CurrentAmount { get; set; }
         public decimal Amount { get; set; }
         public string? Reason { get; set; }
@@ -195,7 +195,7 @@ namespace PhysioClinicPro.Models.ViewModels
         public string? PatientName { get; set; }
         public string? PatientUHID { get; set; }
         public DateTime TransactionDate { get; set; }
-        public string TransactionType { get; set; } = "";
+        public string? TransactionType { get; set; }
         public string? ReferenceNumber { get; set; }
         public decimal Debit { get; set; } = 0;
         public decimal Credit { get; set; } = 0;

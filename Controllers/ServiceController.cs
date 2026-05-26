@@ -159,7 +159,9 @@ namespace PhysioClinicPro.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(s => s.ServiceCode.Contains(search) || s.ServiceName.Contains(search));
+                query = query.Where(s => 
+                    (s.ServiceCode != null && s.ServiceCode.Contains(search)) || 
+                    (s.ServiceName != null && s.ServiceName.Contains(search)));
             }
 
             if (category != "all")
@@ -171,21 +173,22 @@ namespace PhysioClinicPro.Controllers
                 .Where(s => s.IsActive)
                 .OrderBy(s => s.Category)
                 .ThenBy(s => s.ServiceName)
-                .Select(s => new
-                {
-                    s.Id,
-                    s.ServiceCode,
-                    s.ServiceName,
-                    s.Category,
-                    s.Description,
-                    s.DefaultRate,
-                    s.DurationMinutes,
-                    s.GSTPercentage,
-                    s.IsActive
-                })
                 .ToList();
 
-            return Json(services);
+            var result = services.Select(s => new
+            {
+                s.Id,
+                ServiceCode = s.ServiceCode ?? "",
+                ServiceName = s.ServiceName ?? "",
+                Category = s.Category ?? "",
+                Description = s.Description ?? "",
+                s.DefaultRate,
+                s.DurationMinutes,
+                s.GSTPercentage,
+                s.IsActive
+            }).ToList();
+
+            return Json(result);
         }
 
         public IActionResult GetServices()
